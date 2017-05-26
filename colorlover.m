@@ -1,0 +1,69 @@
+function c = colorlover(n,plot)
+% Version 2.0
+% c = colorlover(palette_number,plot);
+% c is a matrix with 5 colors in matlab color codes 
+% e.g. plot(x,y,'color',c(1,:)) will plot in color 1 from the matrix
+% if n is empty a random palette will be chosen
+if ~exist('plot','var') 
+    plot = 0;
+end
+colors{1} = [zeros(1,3)+.9;zeros(1,3)+.7;zeros(1,3)+.5;zeros(1,3)+.3;zeros(1,3)+.1];
+colors{2} = [255,120,105;255,188,84;244,255,98;167,218,255;255,36,191];
+colors{3} = [0.0431,0.2078,0.3765;0.3843,0.6353,0.6588;0.6706,0.2235,0.1176;0.5,0.5,0.5;0.9,0.9,.9];
+% Northwest Rain
+colors{4} = [252,237,208;62,85,103;207,255,255;124,30,28;105,152,180];
+% Ocean Five
+colors{5} = [0,160,176;106,74,60;204,51,63;235,104,65;237,201,81];
+% It's raining love
+colors{6} = [163,169,72;237,185,46;248,89,49;206,24,54;0,153,137];
+% flowers
+colors{7} = [207,95,83;251,153,82;228,193,135;139,176,135;112,140,115];
+% Thought Provoking
+colors{8} = [236,208,120;217,91,67;192,41,66;84,36,55;83,119,122];
+% Adrift in Dreams
+colors{9} = [207,240,158 ; 168,219,168 ; 121,189,154 ; 59,134,134 ; 11,72,107];
+% you are beautiful
+colors{10} = [53,19,48 ; 66,66,84 ; 100,144,138 ; 232,202,164 ; 204,42,65];
+% vintage modern
+colors{11} = [140,35,24 ; 94,140,106 ; 136,166,94 ; 191,179,90 ; 242,196,90];
+
+colors{12} = [hex2rgb('#f8B195');hex2rgb('#f67280');hex2rgb('#c06c84');hex2rgb('#6c5b7b');hex2rgb('#355c7d')];
+
+colors{13} = [hex2rgb('#acdbc9');hex2rgb('#dbebc2');hex2rgb('#fdd2b5');hex2rgb('#f7a7a6');hex2rgb('#48b94')];
+
+colors{14} = [hex2rgb('#acdbc9');hex2rgb('#dbebc2');hex2rgb('#fdd2b5');hex2rgb('#f7a7a6');hex2rgb('#48b94')];
+
+colors{15} = [hex2rgb('#ef4566');hex2rgb('#f69a9a');hex2rgb('#f9cdae');hex2rgb('#c8c8a9');hex2rgb('#83ae9b')];
+
+colors{16} = [hex2rgb('#a6206a');hex2rgb('#ec1c4b');hex2rgb('#f16a43');hex2rgb('#f7d969');hex2rgb('#2f9395')];
+
+
+% random
+colors{length(colors)+1} = rand(30,3);
+
+if ~exist('n','var') || isempty(n)
+    nn=randperm(numel(colors));
+    n=nn(1);
+end
+
+if max(colors{n}) >=1
+    c = color_converter_inline(squeeze(colors{n}));
+else
+    c= squeeze(colors{n});
+end
+if plot
+figure;
+for a = 1:size(c,1);
+    
+    x=nan(1,size(c,1));
+    x(a) = 1;
+    b=bar(x);hold on;
+    set(b,'EdgeColor',c(a,:),'FaceColor',c(a,:),'BarWidth',1)
+end
+figone(3);
+title(['Palette Number ' num2str(n)])
+set(gca,'YTick',[])
+xlim([0.5 size(c,1)+.5])
+end
+function new_color=color_converter_inline(ci)
+new_color = ci./255;

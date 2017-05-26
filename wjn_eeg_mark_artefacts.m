@@ -1,0 +1,14 @@
+matlabbatch{1}.spm.meeg.preproc.artefact.D = {'E:\Dropbox\Motorneuroscience\EEG\testlab\selfpaced joystick R\edfffspmeeg_wjn_test.mat'};
+matlabbatch{1}.spm.meeg.preproc.artefact.mode = 'mark';
+matlabbatch{1}.spm.meeg.preproc.artefact.badchanthresh = 0.2;
+matlabbatch{1}.spm.meeg.preproc.artefact.append = true;
+matlabbatch{1}.spm.meeg.preproc.artefact.methods(1).channels{1}.chan = 'Fp1';
+matlabbatch{1}.spm.meeg.preproc.artefact.methods(1).fun.eyeblink.threshold = 4;
+matlabbatch{1}.spm.meeg.preproc.artefact.methods(1).fun.eyeblink.excwin = 250;
+matlabbatch{1}.spm.meeg.preproc.artefact.methods(2).channels{1}.all = 'all';
+matlabbatch{1}.spm.meeg.preproc.artefact.methods(2).fun.flat.threshold = 0;
+matlabbatch{1}.spm.meeg.preproc.artefact.methods(2).fun.flat.seqlength = 4;
+matlabbatch{1}.spm.meeg.preproc.artefact.methods(3).channels{1}.all = 'all';
+matlabbatch{1}.spm.meeg.preproc.artefact.methods(3).fun.zscore.threshold = 3;
+matlabbatch{1}.spm.meeg.preproc.artefact.methods(3).fun.zscore.excwin = 100;
+matlabbatch{1}.spm.meeg.preproc.artefact.prefix = 'a';
