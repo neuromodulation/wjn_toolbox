@@ -1,12 +1,9 @@
-function wjn_export_toolbox
+function wjn_export_toolbox_to_git
 
-mf = getsystem;
 
-wjndir = fullfile(mf,'wjn_toolbox');
 
-if ~exist(wjndir,'dir')
-    mkdir(wjndir);
-end
+wjndir = ['E:' filesep 'wjn_toolbox'];
+
     copyfile(fullfile(mf,'*.m'),wjndir,'f');
  
   
