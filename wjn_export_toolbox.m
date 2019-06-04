@@ -25,7 +25,7 @@ end
 if exist(gitdir,'dir')
     copyfile(fullfile(wjndir,'*.m'),gitdir,'f');
     cd(gitdir)
-    system(['!git commit -am "Toolbox exported ' date '"'])
+    system(['git commit -am "Toolbox exported ' date '"'])
     !git push
 end
     
