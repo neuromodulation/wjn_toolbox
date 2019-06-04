@@ -19,6 +19,7 @@ for a = 1:length(channels)
     end     
 end
 
+
 nD=chanlabels(nD,':',channame);
 nD.channels = channels;
 save(nD);

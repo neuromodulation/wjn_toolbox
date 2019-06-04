@@ -21,7 +21,7 @@ if ~isempty(folders)
         cn = numel(unique(outdirs));
         outdirs = [outdirs find_folders(outdirs{n})];
         cl = numel(unique(outdirs));
-        if cn == cl
+        if n==cl
             break
         end
     end

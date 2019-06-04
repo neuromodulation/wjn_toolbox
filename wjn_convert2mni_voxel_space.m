@@ -13,13 +13,17 @@ flags.which=1;
 flags.prefix=[space '_'];
 flags.interp=4;
 [idir,toreslicefn,ext] = fileparts(nifti_image);
+try
 switch space
     case 'mni'
         spacefn = wjn_t2_template;
     case 'bb'
         spacefn = fullfile(leadt,'bb.nii');
 end
-
+catch
+    spacefn = space;
+    space = spacefn(1:end-4);
+end
 spm_reslice({spacefn,fullfile(idir,[toreslicefn ext])},flags);
 
 

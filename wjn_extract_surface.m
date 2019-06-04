@@ -6,5 +6,5 @@ else
     spm_surf(filename,2,thresh)
 end
 
-[~,file]=fileparts(filename);
-outfile = [file '.surf.gii'];
+[dir,file]=fileparts(filename);
+outfile = fullfile(dir,[file '.surf.gii']);

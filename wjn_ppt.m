@@ -9,7 +9,8 @@ else
 end
 
 if isempty(find(d))
-    error('d1 = d2')
+    warning('d1 = d2 OR d = 0')
+    p = nan;
 end
 
 
@@ -31,5 +32,19 @@ for a=1:ni
 end
 % keyboard
 md = nanmean(d);
-p = min([1-find(sort(md,'ascend')==md(1),1,'last')/(1+ni),1-find(sort(md,'descend')==md(1),1,'first')/(1+ni)]);
 
+[ud,id] = unique(md);
+md = md(sort(id));
+% plot(md)
+
+
+if nanmean(d(:,1))<=nanmean(md)
+    p =find(sort(md,'ascend')==nanmean(d(:,1)))/length(md);
+else
+    p=find(sort(md,'descend')==nanmean(d(:,1)))/length(md);
+end
+
+
+if isempty(p)
+    p = nan;
+end

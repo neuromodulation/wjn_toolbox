@@ -1,9 +1,9 @@
-function wjn_heatmap(fname,mni,v,mask)
-%% function wjn_heatmap(fname,mni,v,mask)
+function wjn_heatmap(fname,mni,v,template,smoothingkernel)
+%% function wjn_heatmap(fname,mni,v,template)
 
 [~,leadt]=leadf;
 
-inan = [find(isnan(v)) find(isnan(mni(:,1)))];
+inan = [find(isnan(v));find(isnan(mni(:,1)))];
 if ~isempty(inan)
     mni(inan,:) = [];
     v(inan) = [];
@@ -12,7 +12,12 @@ end
 side = 1;
 X{1} = mni(:,1); Y{1} = mni(:,2); Z{1} = mni(:,3); V{1} = v;
 XYZ=[X{side},Y{side},Z{side},ones(length(X{side}),1)]';
-Vol=spm_vol(fullfile(leadt,'bb.nii')); %% Was ist bb.nii
+% Vol=spm_vol(fullfile(leadt,'bb.nii')); %% Was ist bb.nii
+if ~exist('template','var')
+Vol=spm_vol(fullfile(leadt,'t2.nii')); %% Was ist bb.nii
+else
+    Vol=spm_vol(template);
+end
 nii{side}=spm_read_vols(Vol);
 nii{side}(:)=nan;
 XYZ=[X{side},Y{side},Z{side},ones(length(X{side}),1)]';
@@ -34,33 +39,31 @@ Vol.dt =[16,0];
 Vol.fname=fname;
 spm_write_vol(Vol,nii{1});
 
-wjn_crop_nii(fname);
+% wjn_crop_nii(fname);
 
+if ~exist('smoothingkernel','var')
+    smoothingkernel=[6 6 6];
+end
 matlabbatch{1}.spm.spatial.smooth.data = {Vol.fname};
-matlabbatch{1}.spm.spatial.smooth.fwhm = [1 1 1];
-matlabbatch{1}.spm.spatial.smooth.dtype = 0;
-matlabbatch{1}.spm.spatial.smooth.im = 1;
+matlabbatch{1}.spm.spatial.smooth.fwhm = smoothingkernel;
+matlabbatch{1}.spm.spatial.smooth.dtype = 16;
+matlabbatch{1}.spm.spatial.smooth.im = 0;
 matlabbatch{1}.spm.spatial.smooth.prefix = 's';
 jobs{1}=matlabbatch;
 spm_jobman('run',jobs);
 clear jobs matlabbatch
 
-cname=wjn_convert2mni_voxel_space(['s' Vol.fname]);
-cfile = cname;
-if exist('mask','var') 
-    if strcmp(mask,'GPi')
-        mask = fullfile(leadt,'cmni_GPi.nii');
-            elseif strcmp(mask,'GPe')
-        mask = fullfile(leadt,'cmni_GPe.nii');
-    elseif strcmp(mask,'GP')
-        mask = fullfile(leadt,'cmni_GP.nii');
-    elseif strcmp(mask,'STN')
-        mask = fullfile(leadt,'cmni_STN.nii');
-    end
-[maskdir,maskfile,ext]=fileparts(mask);
-spm_imcalc({cname,fullfile(maskdir,[maskfile,ext])},['m_' cname],'(i2>0).*i1');
-cfile = ['m_' cname];
-end
+% cname=wjn_convert2mni_voxel_space(['s' Vol.fname]);
+% cfile = cname;
+cfile = ['s' fname];
+cname = cfile;
+
+
+nii = wjn_read_nii(cfile);
+nii.fname = ['z_' nii.fname];
+nii.img(isnan(nii.img))=0;
+ea_write_nii(nii)
+
 % wjn_extract_surface(cfile);
 
 % % Beta

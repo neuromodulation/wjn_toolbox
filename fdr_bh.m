@@ -86,6 +86,8 @@ else
     end
 end
 
+pvals(isnan(pvals))=[];
+
 if nargin<2,
     q=.05;
 end

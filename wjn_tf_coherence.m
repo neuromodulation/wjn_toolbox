@@ -1,61 +1,30 @@
-function [Dtf,Dcoh,Dicoh]=wjn_tf_wavelet_coherence(filename,freqrange,timewin)
+function nD=wjn_tf_coherence(filename,chancomb)
 
-data = D.fttimelock;
+    D=wjn_sl(filename);
+    
+    for a = 1:size(chancomb,1)
+        channels{a} = [chancomb{a,1} '-' chancomb{a,2}];
+                
+        data1 = D(ci(chancomb{1,1},D.chanlabels),:,1);
+        data2 = D(ci(chancomb{1,2},D.chanlabels),:,1);
+        [tf(a,:,:,1),fp]=cwt(data1,D.fsample);
+        tf(a,:,:,2)=cwt(data2,D.fsample);
+        [coh(a,:,:,1),~,f]=wcoherence(data1,data2,D.fsample);
+         coh(a,:,:,2)= wcoherence(data1(randperm(D.nsamples)),data2,D.fsample);
+    end
+    
+    keyboard
+f=sort(f);
 
+i = unique(wjn_sc(f,[1:f(end)]));
+ff=f(i);
+coh = coh(:,i,:,:);
+tf = tf(:,i,:,:);
 
-
-
-cfg = [];
-cfg.output = 'powandcsd';
-cfg.method = 'wavelet';
-cfg.foi = [1:400];
-cfg.toi = [-2:.05:2];
-cfg.keeptrials = 'yes';
-cfg.channel = D.chanlabels;
-cfg.channelcmb = [coherence_finder(sources{1},'LFP',Df.chanlabels); coherence_finder([sources{1} 'LFP'],'EMG',Df.chanlabels)]; 
-
-freq = ft_freqanalysis(cfg,data);
-pow = [];
-coh = [];
-icoh =[];
-for a = 1:length(D.condlist);
-    i = ci(D.condlist{a},D.conditions); 
-    pow(:,:,:,a) = nanmean(freq.powspctrm(i,:,:,:),1);  
-    cfg = [];
-    cfg.method = 'coh';
-    cfg.trials = i;
-    fd = ft_connectivityanalysis(cfg,freq);
-    coh(:,:,:,a) = fd.cohspctrm(:,:,:);
-    cfg.complex = 'imag';
-    id = ft_connectivityanalysis(cfg,freq);
-    icoh(:,:,:,a) = id.cohspctrm(:,:,:);
-end
-
-
-figure
-imagesc(fd.time,fd.freq,squeeze(mean(mean(coh(1,:,:,ci('left-bp',D.conditions)),1),4))),axis xy
-
-Dpow = clone(D,['mtf' D.fname],size(pow));
-Dpow(:,:,:,:) = pow(:,:,:,:);
-Dpow = conditions(Dpow,':',D.condlist);
-Dpow = frequencies(Dpow, ':', freq.freq);
-Dpow = fsample(Dpow, 1./mean(diff(freq.time)));
-Dpow = timeonset(Dpow, freq.time(1));
-Dpow = check(Dpow);
-save(Dpow);
-
-for a = 1:size(fd.labelcmb)
-    chs{a} = [fd.labelcmb{a,1} '-' fd.labelcmb{a,2}];
-end
-
-Dcoh = clone(Dpow,['mcoh' D.fname],size(coh));
-Dcoh(:,:,:,:) = coh(:,:,:,:);
-Dcoh = chanlabels(Dcoh,':',chs);
-Dcoh = check(Dcoh);
-save(Dcoh);
-
-Dicoh = clone(Dcoh,['micoh' D.fname],size(coh));
-Dicoh(:,:,:,:) = icoh(:,:,:,:);
-Dicoh = chanlabels(Dicoh,':',chs);
-Dicoh = check(Dicoh);
-save(Dicoh);
+nD=clone(D,['coh_' D.fname],[length(channels),length(f) D.nsamples 2]);
+nD=frequencies(nD,':',f);
+nD=chanlabels(nD,':',channels);
+nD=conditions(nD,[1 2],{'coh','scoh'});
+nD.tf = tf;
+nD(:,:,:,:) = coh;
+save(nD);

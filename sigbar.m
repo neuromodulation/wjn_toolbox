@@ -1,12 +1,21 @@
-function [b]=sigbar(x,y,color)
+function [b]=sigbar(x,y,color,lim)
 if ~exist('color','var')
-    color = [0.8 0.8 0.8]
+    color = [0.8 0.8 0.8];
 end
-lim = get(gca,'ylim');
-y = y*lim(2);
-y(y==0) = lim(1);
+
+
+if ~exist('lim','var')
+    lim = get(gca,'ylim');
+    y = y*lim(2);
+    y(y==0) = lim(1);
+end
+
+if ~exist('y','var') || isempty(y)
+    y = ones(size(x)).*lim(2);
+end
+
 b = bar(x,y,'barwidth',1,'FaceColor',color,'BaseValue',lim(1));
-ch = get(b,'child');
-set(ch,'facea',.5)
+set(b,'FaceAlpha',.5)
 set(b,'EdgeColor','none');
 
+%keyboard

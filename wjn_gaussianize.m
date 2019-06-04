@@ -124,7 +124,7 @@ function z = wjn_gaussianize(data, varargin)
 % varargin can contain: n_datasets, n_headerlines, col_sep, means, stdevs,
 % split_ties
 
-error(nargchk(1,7, nargin))   % Prints an error message and returns if the
+% error(nargchk(1,7, nargin))   % Prints an error message and returns if the
 % nr of input arguments supplied is less than
 % 1 or more than 7
 %----------------------------------------------------------------------

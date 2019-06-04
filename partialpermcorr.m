@@ -8,8 +8,8 @@ if ~exist('alpha','var')
     alpha = .05;
 end
 
-for a = 1:size(x,2);
-r(a) =partialcorr(x(:,a),y,c,'type',type);
+for a = 1:size(x,2)
+    r(a) =partialcorr(x(:,a),y,c,'type',type,'rows','pairwise');
 end
 
 for a = 1:size(x,2);

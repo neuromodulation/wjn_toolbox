@@ -23,16 +23,16 @@ figure('Color','k','position',[20 72 800 600])
 % Load and Render the FreeSurfer surface
 
 hems = {'rh','lh'};
-for a = 1:2;
+for a = 1:2
     S = [];
 S.hem = hems{a}; % choose the hemesphere 'lh' or 'rh'
-S.inflationstep = 3; % 1 no inflation, 6 fully inflated
+S.inflationstep = 4; % 1 no inflation, 6 fully inflated
 S.separateHem = 5;
 % S.plotsurf = 'pial';
 S.plotsurf = 'pial';
 S.lookupsurf = 'pial';
-S.surfacecolorspec = [.9 .9 .9];
-S.surfacealpha = 1;
+S.surfacecolorspec = [.5 .5 .5];
+S.surfacealpha = .5;
 S.decimation = true; % Decimate the surface for speed. (Use FALSE for publishable quality figures).
 S = mni2fs_brain(S);
 % S.hem = 'rh';
@@ -46,7 +46,8 @@ if roi
     S = mni2fs_roi(S); 
 end
 % Add overlay, theshold to 98th percentile
-NIFTI = load_nii(nii); % mnivol can be a NIFTI structure
+NIFTI = mni2fs_load_nii(nii); % mnivol can be a NIFTI structure
+% keyboard
 S.mnivol = NIFTI;
 S.clims = clims;
 S.seperateHem = 0;

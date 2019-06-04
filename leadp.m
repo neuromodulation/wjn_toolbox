@@ -1,2 +1,2 @@
 function lp = leadp
-lp = fullfile(leadt,'parcellations');
+[lf,lt,lc,~,lp]=leadf;

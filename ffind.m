@@ -7,9 +7,14 @@ if ~exist('rec','var')
     rec = 0;
 end
 
+
 if ~rec
-    files = cellstr(ls(string));
-    
+    x = ls(string);
+    if size(x,1)>1
+        files = cellstr(ls(string));
+    else
+        files = stringsplit(x,' ');
+    end
     
     for a =1:length(files)
         ff = fileparts(string);
@@ -18,6 +23,7 @@ if ~rec
         else
             folder{a} = cd;
         end
+
     end
 
 
@@ -46,7 +52,9 @@ end
 ris = logical(sum([ismember(files,'.') ,ismember(files,'..')],2));
 files(ris)=[];
 folder(ris)=[];
-
+[files,x]=unique(files);
+folder = folder(x);
+% keyboard
 if ~isempty(files)
     if ~cell && length(files) == 1
         files = files{1};
@@ -55,7 +63,7 @@ if ~isempty(files)
         files = [];
         folder = [];
         fullfname = [];
-    elseif iscell(files) && length(files)>1
+    elseif iscell(files)
         for a=1:length(files)
             fullfname{a,1} = [folder{a} filesep files{a}];
         end   

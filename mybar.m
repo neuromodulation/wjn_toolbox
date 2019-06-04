@@ -1,9 +1,14 @@
-function [b,e] = mybar(y,cmap,x,bwidth,ec)
+function [b,e] = mybar(y,cmap,x,bwidth,ec,id)
+
+if ~exist('id','var')
+    id = 0;
+end
+
 if ~exist('cmap','var') || isempty(cmap)
     try
         cmap = [colorlover(5,0); colorlover(6,0)];
         cmap = cmap([1 3 6 5 4 2 7 8 9 10],:);
-        cmap = [cmap;cmap;cmap;cmap];
+        cmap = repmat(cmap,[20,1]);
     catch
         cmap = [1 0 0;0 1 0;0 0 1];
     end
@@ -12,11 +17,11 @@ else
         cmap = [cmap;cmap];
     end
 end
-if ~exist('bwidth','var')
+if ~exist('bwidth','var') || isempty(bwidth)
     bwidth=1;
 end
 
-if ~exist('ec','var')
+if ~exist('ec','var') || isempty(ec)
     ec = 'k';
     bc = ec;
 elseif strcmp(ec,'none')
@@ -27,7 +32,7 @@ oc = ec;
 % figure
 
 l = size(y,2);
-if ~exist('x','var')
+if ~exist('x','var') || isempty(x)
 x = 1:l;
 end
 for a=1:l
@@ -65,5 +70,14 @@ for a = 1:length(my)
        hold on
  hold on
 end
-xlim([0 l+1])
+% keyboard
+if id
+    for a = 1:length(x)
+        for b = 1:size(y,1)
+            text(x(a)-(.5*bwidth),y(b,a),'-','HorizontalAlignment','center')
+        end
+%         plot(x(a)-.55*bwidth,y(:,a),'Marker','<','MarkerFaceColor','k','MarkerEdgeColor','none','LineStyle','none','MarkerSize',1.5)
+    end
+end
+xlim([0 x(a)+1])
 figone(5)

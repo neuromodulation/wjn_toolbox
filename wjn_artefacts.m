@@ -26,12 +26,14 @@ function D = wjn_artefacts(filename,channels,trials,newfile)
  
   cht=unique(D.chantype(chs));
   chts = [];
-  for a =1:length(chs)+length(cht);
+  for a =1:length(chs)+length(cht)
       if a<=length(chs)
           chts{a} = chs(a);
+          nchannels{a} = strrep(channels{a},'_',' ');
       else
-        chts{a}=ci(cht{a-length(chs)},D.chantype);
+        chts{a}=ci(cht{a-length(chs)},D.chantype,1);
         channels{a} = cht{a-length(chs)};
+        nchannels{a} = strrep(channels{a},'_',' ');
       end
   end
  
@@ -77,7 +79,8 @@ while x==0
          if art(t)
              text(D.time(round(D.nsamples*.1)),length(chts)+.5,'BAD','color','r','FontSize',20)   
          end
-     set(gca,'YTick',1:length(chts),'YTickLabel',channels)
+%          keyboard
+     set(gca,'YTick',1:length(chts),'YTickLabel',nchannels)
      ylim([0 length(chts)+1])
      xlabel('PST [s]')
      title([trials{t} ' N = ' num2str(t) ' BAD = ' num2str(art(t))])

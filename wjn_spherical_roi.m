@@ -1,6 +1,8 @@
-function cname=wjn_spherical_roi(fname,mni,r)
+function cname=wjn_spherical_roi(fname,mni,r,template)
 
+if ~exist('template','var')
 
+try
 [~,leadt]=leadf;
 Vol=ea_load_nii(fullfile(leadt,'bb.nii'));
 nii=Vol.img;
@@ -22,46 +24,103 @@ for a=1:size(mni,1)
     xix=squeeze(xx(1,:,1)+round(XYZ(1)-2*r/voxmm(1)));
     yiy=squeeze(yy(:,1,1)+round(XYZ(2)-2*r/voxmm(1)));
     ziz=squeeze(zz(1,1,:)+round(XYZ(3)-2*r/voxmm(1)));
-%     keyboard
-%Visualize
-
-    
-%     clear bb
-% % 
-%     bb(1,:)=[round(min(x(:,1))),round(max(x(:,1)))];
-%     bb(2,:)=[round(min(y(:,2))),round(max(y(:,2)))];
-%     bb(3,:)=[round(min(z(:,3))),round(max(z(:,3)))];
-% 
-%     xix=bb(1,1):bb(1,2); yix=bb(2,1):bb(2,2); zix=bb(3,1):bb(3,2);
-%     nii(xix,yix,zix) =  1;
     nii(xix,yiy,ziz)=S;
 end
-
-
+nii(nii~=1)=nan;
 Vol.dt =[16,0];
 [fdir,fname]=fileparts(fname);
 Vol.fname=fullfile(fdir,[fname '.nii']);
 spm_write_vol(Vol,nii);
 
+catch
+    
+[~,leadt]=leadf;
+Vol=ea_load_nii(fullfile(leadt,'t1.nii'));
+nii=Vol.img;
+nii(:)=nan;
+voxmm = Vol.voxsize;
+for a=1:size(mni,1)
+    X= mni(a,1); Y = mni(a,2); Z = mni(a,3); 
+    XYZ=[X,Y,Z,ones(length(X),1)]';
+    XYZ=Vol.mat\XYZ; % to voxel space.
+    XYZ=(XYZ(1:3,:)');
+    
+    xe = XYZ(1)-round(2*r/voxmm(1)):XYZ(1)+round(2*r/voxmm(1));
+    ye = XYZ(2)-round(2*r/voxmm(2)):XYZ(2)+round(2*r/voxmm(2));
+    ze = XYZ(3)-round(2*r/voxmm(3)):XYZ(3)+round(2*r/voxmm(3));
 
-matlabbatch{1}.spm.spatial.smooth.data = {Vol.fname};
-matlabbatch{1}.spm.spatial.smooth.fwhm = [1 1 1];
-matlabbatch{1}.spm.spatial.smooth.dtype = 0;
-matlabbatch{1}.spm.spatial.smooth.im = 1;
-matlabbatch{1}.spm.spatial.smooth.prefix = 's';
-jobs{1}=matlabbatch;
-spm_jobman('run',jobs);
-clear jobs matlabbatch
+    
+    [xx yy zz] = meshgrid(1:length(xe),1:length(ye),1:length(ze));
+    S = round(sqrt((xx-2*r/voxmm(1)).^2+(yy-2*r/voxmm(2)).^2+(zz-2*r/voxmm(3)).^2)<=r/voxmm(1));
+    xix=squeeze(xx(1,:,1)+round(XYZ(1)-2*r/voxmm(1)));
+    yiy=squeeze(yy(:,1,1)+round(XYZ(2)-2*r/voxmm(1)));
+    ziz=squeeze(zz(1,1,:)+round(XYZ(3)-2*r/voxmm(1)));
+    nii(xix,yiy,ziz)=S;
+    nii(nii~=1)=nan;
+Vol.dt =[16,0];
+[fdir,fname]=fileparts(fname);
+Vol.fname=fullfile(fdir,[fname '.nii']);
+spm_write_vol(Vol,nii);
+end
+end
 
-delete(Vol.fname)
+else
+    Vol=ea_load_nii(template);
+nii=Vol.img;
+nii(:)=nan;
+voxmm = Vol.voxsize;
+for a=1:size(mni,1)
+    X= mni(a,1); Y = mni(a,2); Z = mni(a,3); 
+    XYZ=[X,Y,Z,ones(length(X),1)]';
+    XYZ=Vol.mat\XYZ; % to voxel space.
+    XYZ=(XYZ(1:3,:)');
+    
+    xe = XYZ(1)-round(2*r/voxmm(1)):XYZ(1)+round(2*r/voxmm(1));
+    ye = XYZ(2)-round(2*r/voxmm(2)):XYZ(2)+round(2*r/voxmm(2));
+    ze = XYZ(3)-round(2*r/voxmm(3)):XYZ(3)+round(2*r/voxmm(3));
+
+    
+    [xx yy zz] = meshgrid(1:length(xe),1:length(ye),1:length(ze));
+    S = round(sqrt((xx-2*r/voxmm(1)).^2+(yy-2*r/voxmm(2)).^2+(zz-2*r/voxmm(3)).^2)<=r/voxmm(1));
+    xix=squeeze(xx(1,:,1)+round(XYZ(1)-2*r/voxmm(1)));
+    yiy=squeeze(yy(:,1,1)+round(XYZ(2)-2*r/voxmm(1)));
+    ziz=squeeze(zz(1,1,:)+round(XYZ(3)-2*r/voxmm(1)));
+    try
+    nii(xix,yiy,ziz)=S;
+    catch
+    nii(xix(2:end),yiy,ziz)=S(2:end,:,:);
+    end
+end
+nii(nii~=1)=nan;
+Vol.dt =[16,0];
+[fdir,fname]=fileparts(fname);
+Vol.fname=fullfile(fdir,[fname '.nii']);
+spm_write_vol(Vol,nii(1:Vol.dim(1),1:Vol.dim(2),1:Vol.dim(3)));
+end
+% keyboard
 
 
-cname=wjn_convert2mni_voxel_space(fullfile(fdir,['s' fname '.nii']));
-spm_imcalc(cname,cname,'i1>0.001')
-ea_crop_nii(cname)
 
-delete(fullfile(fdir,['s' fname '.nii']))
-delete(fullfile(fdir,[fname '.nii']));
+
+% matlabbatch{1}.spm.spatial.smooth.data = {Vol.fname};
+% matlabbatch{1}.spm.spatial.smooth.fwhm = [1 1 1];
+% matlabbatch{1}.spm.spatial.smooth.dtype = 0;
+% matlabbatch{1}.spm.spatial.smooth.im = 1;
+% matlabbatch{1}.spm.spatial.smooth.prefix = 's';
+% jobs{1}=matlabbatch;
+% spm_jobman('run',jobs);
+% clear jobs matlabbatch
+% 
+% delete(Vol.fname)
+
+% 
+% cname=wjn_convert2mni_voxel_space(fullfile(fdir,['s' fname '.nii']));
+% spm_imcalc(cname,cname,'i1>0.0001')
+cname=fullfile(fdir,[fname '.nii'])
+% ea_crop_nii(cname)
+% 
+% delete(fullfile(fdir,['s' fname '.nii']))
+% delete(fullfile(fdir,[fname '.nii']));
 
 % cfile = cname;
 % if exist('mask','var') 

@@ -1,24 +1,23 @@
 function spm12(w)
 
+P = stringsplit(path,';')';
+P = P(ci('\spm',P))
+
+for a=1:length(P)
+    rmpath(P{a})
+end
+
 if ~exist('w','var')
     w = 0;
 end
 
 [~,d]=mdf;
-% addpath(fullfile(d,'Shared\spm12'))
 
-% addpath(fullfile(getsystem,'spm_additions'))
-addpath(fullfile(getsystem,'meg_toolbox'))
-
-addpath(fullfile(d,'Shared\Code'))
-
-% addpath(fullfile(getsystem,'SPM12'))
-% d='E:\Dropbox\'
 [~,~,~,~,spmf] = getsystem;
 addpath(spmf)
 % addpath(fullfile(d,'spm12','toolbox','MEEGtools'))
 if w
-    spm('eeg','defaults')
+    spm('fmri','defaults')
 else
         spm('AsciiWelcome');
             addpath(fullfile(spm('Dir'),'external','fieldtrip'));

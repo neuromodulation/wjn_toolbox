@@ -2,7 +2,7 @@ function wjn_export_toolbox_to_git
 
 
 
-wjndir = ['E:' filesep 'wjn_toolbox'];
+wjndir = ['E:' filesep 'GitHub' filesep 'wjn_toolbox'];
 
     copyfile(fullfile(mf,'*.m'),wjndir,'f');
  

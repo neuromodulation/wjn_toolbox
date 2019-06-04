@@ -20,7 +20,7 @@ D.ochans = D.chanlabels;
 ct = D.chantype;
 chs = D.chanlabels;
 nchs = [];
-for a = 1:length(D.chanlabels);
+for a = 1:length(D.chanlabels)
     try
         x = ci(chs{a}(end-2),sides);
     catch

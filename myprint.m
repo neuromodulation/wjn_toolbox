@@ -1,14 +1,19 @@
-function myprint(varargin)
-filename = varargin{1};
+function myprint(filename,printfig)
+
+if ~exist('printfig','var')
+    printfig = 0;
+end
 
 [fold,file,ext]=fileparts(filename);
 if ~exist(fold,'dir')
     mkdir(fold);
 end
-print(gcf,fullfile(fold,file),'-dpng','-r600','-opengl');
-print(gcf,fullfile(fold,file),'-dpdf','-r600');
+print(gcf,fullfile(fold,file),'-dpng','-r300','-opengl');
+print(gcf,fullfile(fold,file),'-dpdf','-r80');
 % exloop = 0;
 % n = 0;
 % newfile = filename;
 % 
-% saveas(gcf,fullfile(fold,[file '.fig']),'fig');
+if printfig
+    savefig(gcf,fullfile(fold,[file]));
+end

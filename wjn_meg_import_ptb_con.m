@@ -22,11 +22,18 @@ origsens =[origsens  {ft_datatype_sens(ft_read_sens(S.dataset, 'senstype', 'meg'
 origfid  =[origfid ...
 ft_convert_units(ft_read_headshape(spm_file(S.dataset, 'filename', fiducialtxtfile)))];  
 D = fiducials(D, origfid(end)); 
+str = stringsplit(confile,'.');
+fname = D.fname;
+D.move([fname(1:end-4) '_' str{2}(2)]);
+D=spm_eeg_load([fname(1:end-4) '_' str{2}(2)]);
+
+try
+    eventchannels = {'EEG157','EEG158','EEG159','EEG160'};
 
 
-eventchannels = {'EEG157','EEG158','EEG159','EEG160'};
+
 event = struct('type',[],'value',[],'time',[],'sample',[],'offset',[],'duration',[]);
-
+n=0;
 
     for a = 1:length(eventchannels)
         d = round(10.*D(D.indchannel(eventchannels{a}),:,1))/10;
@@ -44,13 +51,15 @@ event = struct('type',[],'value',[],'time',[],'sample',[],'offset',[],'duration'
 
 
 
- eventdata = zeros(1, D.nsamples);
+eventdata = zeros(1, D.nsamples);
 eventdata([event(:).sample]) = [event(:).value];
 
 
 D=events(D,1,rmfield(event,'sample'));
 
 save(D);
+
+
 
 dim = size(D);
 dim(1) = dim(1) + 1;
@@ -62,52 +71,48 @@ nD(1:D.nchannels,:,:) = D(:,:,:);
 nD = chantype(nD,':',[D.chantype 'Other']);
 nD = chantype(nD,nD.indchantype('EEG'),'Other');
 nD(nD.indchannel('event'),:,1) = eventdata;
-
 save(nD);
 clear D
 delete(fullfile(fdir,[fname '.*']))
 D=nD;
-
-ampthresh = 10098;
-flatthresh = 3.4241;
-
-
-S = [];
-S.D = D;
-S.mode = 'mark';
-S.badchanthresh = 0.2; % 0.4; % 0.8;
-S.methods(1).channels = {'MEGGRAD'};
-S.methods(1).fun = 'flat';
-S.methods(1).settings.threshold = flatthresh; 
-S.methods(1).settings.seqlength = 10;
-S.methods(2).channels = {'MEGPLANAR'};
-S.methods(2).fun = 'flat';
-S.methods(2).settings.threshold = 0.1;
-S.methods(2).settings.seqlength = 10;
-S.methods(3).channels = {'MEGGRAD'};
-S.methods(3).fun = 'jump';
-S.methods(3).settings.threshold = 1e4;
-S.methods(3).settings.excwin = 2000;
-S.methods(4).channels = {'MEGPLANAR'};
-S.methods(4).fun = 'jump';
-S.methods(4).settings.threshold = 5000;
-S.methods(4).settings.excwin = 2000;
-S.methods(5).channels = {'MEG'};
-S.methods(5).fun = 'threshchan';
-S.methods(5).settings.threshold = ampthresh;
-S.methods(5).settings.excwin = 1000;
-D = spm_eeg_artefact(S);
+catch
+    disp('No events created from event channels!')
+end
 
 
-S = [];
-S.D = D;
-S.type = 'butterworth';
-S.band = 'high';
-S.freq = 1;
-S.dir = 'twopass';
-S.order = 5;
-D = spm_eeg_filter(S);
-    
+
+% ampthresh = 10098;
+% flatthresh = 3.4241;
+% 
+% 
+% S = [];
+% S.D = D;
+% S.mode = 'mark';
+% S.badchanthresh = 0.2; % 0.4; % 0.8;
+% S.methods(1).channels = {'MEGGRAD'};
+% S.methods(1).fun = 'flat';
+% S.methods(1).settings.threshold = flatthresh; 
+% S.methods(1).settings.seqlength = 10;
+% S.methods(2).channels = {'MEGPLANAR'};
+% S.methods(2).fun = 'flat';
+% S.methods(2).settings.threshold = 0.1;
+% S.methods(2).settings.seqlength = 10;
+% S.methods(3).channels = {'MEGGRAD'};
+% S.methods(3).fun = 'jump';
+% S.methods(3).settings.threshold = 1e4;
+% S.methods(3).settings.excwin = 2000;
+% S.methods(4).channels = {'MEGPLANAR'};
+% S.methods(4).fun = 'jump';
+% S.methods(4).settings.threshold = 5000;
+% S.methods(4).settings.excwin = 2000;
+% S.methods(5).channels = {'MEG'};
+% S.methods(5).fun = 'threshchan';
+% S.methods(5).settings.threshold = ampthresh;
+% S.methods(5).settings.excwin = 1000;
+% D = spm_eeg_artefact(S);
+
+
+
 
 origfid.fid.pnt = origfid.fid.pos;
 fid  = origfid;
@@ -199,6 +204,15 @@ delete(fullfile(fdir,['faa' fname '.*']))
 delete(fullfile(fdir,['aa' fname '.*']))
 delete(fullfile(fdir,['a' fname '.*']))
 
+S = [];
+S.D = D;
+S.type = 'butterworth';
+S.band = 'high';
+S.freq = .5;
+S.dir = 'twopass';
+S.order = 5;
+D = spm_eeg_filter(S);
+
 
 
 S = [];
@@ -219,17 +233,9 @@ S.dir = 'twopass';
 S.order = 5;
 D = spm_eeg_filter(S);
 
-S = [];
-S.D = D;
-S.type = 'butterworth';
-S.band = 'stop';
-S.freq = [98 102];
-S.dir = 'twopass';
-S.order = 5;
-D = spm_eeg_filter(S);
 
 S.D = D.fullfile;
-S.fsample_new = 300;
+S.fsample_new = 256;
 D=spm_eeg_downsample(S);
 
 D.move(fullfile(fdir,['d' fname ext]));

@@ -1,27 +1,40 @@
-% Functions enabling use of multiple colormaps per figure.
+% FastICA for Matlab 7.x and 6.x
+% Version 2.5, October 19 2005
+% Copyright (c) Hugo Gävert, Jarmo Hurri, Jaakko Särelä, and Aapo Hyvärinen.
 %
-% version 2.3, 3/2007
+% Type fasticag to launch the graphical user interface
 %
-%   freezeColors    - Lock colors of plot, enabling multiple colormaps per figure.
-%   unfreezeColors  - Restore colors of a plot to original indexed color.
-%   
-% demo/html
-%   freezeColors_pub.html   - Published demonstration.
+% Please refer to your Matlab documentation on how to add FastICA to your
+% Matlab search path. (One place to start is the path-command)
 %
-% test
-%   test_main       - Test function.
+% FastICA programs:
+%   FASTICAG  - Graphical user interface for FastICA
+%   FASTICA   - command line version of FastICA
+%
+% Separate functions used by FastICA programs.
+%   FPICA     - main algorithm for calculating ICA
+%   WHITENV   - function for whitening data
+%   PCAMAT    - calculates the PCA for data
+%   REMMEAN   - function for removing mean
+%
+%   GUI_CB    - needed by fasticag
+%   GUI_ADV   - needed by fasticag
+%   GUI_ADVC  - needed by fasticag
+%   GUI_L     - needed by fasticag
+%   GUI_LC    - needed by fasticag
+%   GUI_S     - needed by fasticag
+%   GUI_SC    - needed by fasticag
+%   GUI_CG    - needed by fasticag
+%   GUI_HELP  - needed by fasticag
+%
+%   ICAPLOT   - for plotting the signals
+%               (also used by fastica and fasticag)
+%
+% Misc.
+%   DEMOSIG   - generates some test signals
+%
+% Deprecated
+%   dispsig   - plots the data vectors
+%               replaced by icaplot
 
-% AUTHOR
-% John Iversen, 2005-10
-% john_iversen@post.harvard.edu
-% 
-% Free for any use, so long as AUTHOR information remains with code.
-%
-% HISTORY
-% 
-% JRI 6/2005  (v1)
-% JRI 9/2006  (v2.1) now operates on all objects with CData (not just images as before)
-% JRI 11/2006 handle NaNs in images/surfaces (was not posted on file exchange, included in v2.3)
-% JRI 3/2007  (v2.3) Fix bug in handling of caxis that made colorbar scales on frozen plots incorrect. 
-% JRI 4/2007  Add 'published' html documentation.
-% JRI 9/2010  Changed documentation for colorbars
+% @(#)$Id: Contents.m,v 1.7 2005/10/19 13:05:33 jarmo Exp $

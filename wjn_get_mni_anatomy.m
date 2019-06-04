@@ -1,22 +1,20 @@
-function [label,code,id,CB]=wjn_get_mni_anatomy(coord)
+function [label,code,dist]=wjn_get_mni_anatomy(coord)
 
-load(fullfile(getsystem,'ROI_MNI_V4_List.mat'))
-t1=spm_vol_nifti(fullfile(getsystem,'ROI_MNI_V4.nii'));
+areas=importdata(fullfile(getsystem,'imaging','labeling','Automated Anatomical Labeling 2 (Tzourio-Mazoyer 2002).txt'));
+
+t1=spm_vol_nifti(fullfile(getsystem,'imaging','labeling','Automated Anatomical Labeling 2 (Tzourio-Mazoyer 2002).nii'));
 
 [d,xyz]=spm_read_vols(t1);
+nxyz  = xyz;
+nxyz=xyz(:,d(:)>0);
+[dist,a] = min(pdist2(nxyz',coord));
+[~,a]=min(pdist2(xyz',nxyz(:,a)'));
 
 
 
+% a = find(find(xyz(1,:) == coord(1)) & xyz(2,:) == coord(2) & xyz(3,:) == coord(3));
+code = d(ind2sub(t1.dim,a));
 
-a = find(xyz(1,:) == coord(1) & xyz(2,:) == coord(2) & xyz(3,:) == coord(3));
-id = d(ind2sub(t1.dim,a));
-label = [];code =[]; CB = [];
-for i = 1:length(ROI);
-    if ROI(i).ID == id;
-        label = ROI(i).Nom_L;
-        code = ROI(i).Nom_C;
-        CB = ROI(i).CB;
-    end
-end
+label = areas{code};
 
             

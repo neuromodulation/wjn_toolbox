@@ -147,7 +147,7 @@ function [z,s,exitflag,Wtot] = wjn_smoothn(varargin)
 %   href="matlab:web('http://www.biomecardio.com/matlab/smoothn.html')">website</a> for more details about SMOOTHN 
 
 % Check input arguments
-error(nargchk(1,12,nargin));
+% error(nargchk(1,12,nargin));
 
 %% Test & prepare the variables
 %---

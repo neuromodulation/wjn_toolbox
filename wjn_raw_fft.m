@@ -1,6 +1,11 @@
-function [pow,f,rpow]=wjn_raw_fft(data,fs)
+function [pow,f,rpow,lpow]=wjn_raw_fft(data,fs,tw)
 
-for a = 1:size(data,1);
-[pow(a,:),f] = pwelch(data(a,:),hanning(round(fs)),0,round(fs),fs);
-rpow(a,: ) = pow(a,:)./max(pow(a,:));
+if ~exist('tw','var')
+    tw = fs;
+end
+
+for a = 1:size(data,1)
+[pow(a,:),f] = pwelch(data(a,:),hanning(round(tw)),0.5,round(tw),fs);
+rpow(a,: ) = 100.*pow(a,:)./sum(pow(a,wjn_sc(f,[5:45 55:95])));
+lpow(a,:)= fftlogfitter(f,pow(a,:));
 end

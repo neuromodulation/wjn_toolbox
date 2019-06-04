@@ -50,7 +50,7 @@ function [y,w] = idctn(y,DIM,w)
 %   reused in the next calls.
 % ----------
 
-error(nargchk(1,3,nargin))
+% error(nargchk(1,3,nargin))
 
 y = double(y);
 sizy = size(y);

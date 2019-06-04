@@ -10,7 +10,7 @@ timestamp = datestr(now);
 scripts{s+1,4} = timestamp;
 save(fullfile(getsystem,'scripts.mat'),'scripts')
 
-xlswrite(fullfile(getsystem,'scripts.xls'),{'No','Path','Script','Date'},1,'A1')
-xlswrite(fullfile(getsystem,'scripts.xls'),scripts,1,'A2')
+% xlswrite(fullfile(getsystem,'scripts.xls'),{'No','Path','Script','Date'},1,'A1')
+% xlswrite(fullfile(getsystem,'scripts.xls'),scripts,1,'A2')
 
 edit(fullfile(getsystem,filename))

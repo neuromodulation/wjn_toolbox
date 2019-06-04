@@ -54,7 +54,7 @@ cfg = [];
 cfg.method = 'wavelet';
 cfg.toi = timewindow(1):1/w_fs:timewindow(2);
 cfg.padding = 2;
-cfg.foi = flow(1):fhigh(2);
+cfg.foi = [flow fhigh];
 cfg.trials = i;
 cfg.channels = chs;
 cfg.output = 'fourier';
@@ -91,14 +91,14 @@ keep timewindow flow fhigh nd np Dp Da D conds chs a b phlow phigh os
 S=[];
 S.D = Da.fullfile;
 S.conditions = conds{b};
-S.freqwin = fhigh(1):fhigh(2);
+S.freqwin = fhigh;
 S.channels = chs(a);
 S.confounds = {};
 S.prefix = 'pac_';
 S.regressors{1}.tfphase.Dtf = Dp.fullfile;
 S.regressors{1}.tfphase.channels{1}.chan = chs(a);
 S.regressors{1}.tfphase.timewin = [-Inf Inf];
-S.regressors{1}.tfphase.freqwin = flow(1):flow(2);
+S.regressors{1}.tfphase.freqwin = flow;
 S.regressors{1}.tfphase.average = 0;
 S.regressors{1}.tfphase.standardize = 0;
 S.regressors{1}.tfphase.regname = 'TFphase';
@@ -139,6 +139,7 @@ allconfounds = [];
 % end
 
 freqind = D.indfrequency(min(S.freqwin)):D.indfrequency(max(S.freqwin));
+% keyboard
 if isempty(freqind) || any(isnan(freqind))
     error('Selected frequency window is invalid.');
 end

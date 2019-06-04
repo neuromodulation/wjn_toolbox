@@ -1,20 +1,23 @@
-function config_dio(lines)
+function dio=config_dio(lines)
 global dio;
 %% Set digital output
-if exist('dio','var');
-delete(dio);
-clear dio
-end
+% if exist('dio','var')
+% delete(dio);
+% clear dio
+% end
 if ~exist('lines','var')
     lines = [1 2];
 end
 
-global dio;
+% global dio;
+try
     dev = DAQHWINFO('nidaq');
-
-    dio=digitalio('nidaq',dev.InstalledBoardIds{1});
+    dio=digitalio('nidaq',1);
     addline(dio,lines-1,1,'Out');
-    
-
-clear dev
+catch
+    dio = daq.createSession('ni'); 
+    addDigitalChannel(dio,'LFP','Port1/Line2','OutputOnly');
 end
+% clear dev
+end
+

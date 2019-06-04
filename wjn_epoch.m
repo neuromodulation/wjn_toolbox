@@ -5,7 +5,7 @@ if ~exist('conditionlabels','var')
 end
 
 if ~exist('prefix','var')
-    prefix = '';
+    prefix = 'e';
 end
 
 
@@ -16,22 +16,26 @@ end
 conds = conditionlabels;
 D=spm_eeg_load(filename);
 
-if sum(abs(timewin)) > 500
+if sum(abs(timewin)) >= 200
     timewin = timewin/1000;
 end
 
 
-if exist('trl','var')
-    for a = 1:length(trl);
-        ntrl(a,:) = [D.indsample(trl(a)+timewin(1)) D.indsample(trl(a)+timewin(1))+diff(timewin)*D.fsample timewin(1)*D.fsample];
-        if length(conds)==1;
-            conditionlabels{a}=conds{1};
-        end
-            
-    end
 
-    
- 
+if exist('trl','var') && ~isempty(trl)
+    if size(trl,2)==1
+        for a = 1:length(trl)
+            ntrl(a,:) = [D.indsample(trl(a))+timewin(1)*D.fsample D.indsample(trl(a))+(timewin(1)+diff(timewin))*D.fsample timewin(1)*D.fsample];
+            if length(conds)==1
+                conditionlabels{a}=conds{1};
+            end
+
+        end
+    elseif size(trl,2)==3
+        ntrl = trl;
+    end
+%     
+%  
 S=[];
 S.trl=ntrl;
 S.conditionlabels=conditionlabels;
@@ -39,21 +43,34 @@ D.trl = S.trl;
 D.ttrl = D.trl/D.fsample;
 D.conditionlabels = S.conditionlabels;
 save(D)
+
+% keyboard
+
+
+if isfield(D,'analog') && ~isempty(fieldnames(D.analog))
+    anames = fieldnames(D.analog);
+    for a = 1:length(anames)
+        for b = 1:size(D.trl,1)
+        D.eanalog.(anames{a})(b,:)= D.analog.(anames{a})(D.trl(b,1):D.trl(b,2));
+        end
+    end
+save(D)
 end
-
-
+end
+% 
+% keyboard
 
 S=[];
 S.D = D.fullfile; 
     S.prefix = prefix;
-if  ~exist('trl','var')
+if  ~exist('trl','var') || isempty(trl)
     S.trialength = timewin(1)*1000;
     D=spm_eeg_epochs(S);
     D=conditions(D,':',conds{1});
 
     save(D);
 else 
-    S.trl = D.trl;
+    S.trl = ntrl;
     S.conditionlabels = D.conditionlabels;
     
     D=spm_eeg_epochs(S);

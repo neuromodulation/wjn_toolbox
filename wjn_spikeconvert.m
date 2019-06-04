@@ -52,15 +52,23 @@ S.channels = nt(dc==1);
 S.dataset = filename;
 D = spm_eeg_convert(S);
 
+chans = D.chanlabels;
+[nchans,i]=sort(chans);
+
+D(:,:,:)=D(i,:,1);
+D=chanlabels(D,':',nchans);
+save(D);
 if downsample
     D=wjn_downsample(D.fullfile,downsample);
 end
+
+
 ch = numel(D.chanlabels);
 
 for a = 1:ch
-    if sum(strncmpi(D.chanlabels{a},{'STN','LFP','GPi','VIM','CMPf','rLFP','rSTN'},3));    
+    if sum(strncmpi(D.chanlabels{a},{'STN','LFP','GPi','VIM','CMPf','rLFP','rSTN','ECOG','Cg25','BNST','EP','M1','M3','M13','M9'},3));    
         D=chantype(D,a,'LFP');
-    elseif sum(strncmpi(D.chanlabels{a},{'EMG','FDI','SCM'},3));  
+    elseif sum(strncmpi(D.chanlabels{a},{'EMG','FDI','SCM'},3))
         D=chantype(D,a,'EMG');
     elseif sum(strncmpi(D.chanlabels{a},{'EEG','Cz','C3','C4','Pz'},3)) || sum(strncmpi(D.chanlabels{a},{'EEG','Cz','C3','C4'},2));  
         D=chantype(D,a,'EEG');
@@ -117,6 +125,7 @@ if exist('lowcut','var') && ~isempty(lowcut) && lowcut
     cfg.hpfilter = 'yes';
     cfg.hpfreq = lowcut;
     cfg.hpfiltord = 3;
+%     cfg.channel = 'all';
     data = ft_preprocessing(cfg,D.ftraw(i));
     D(i,:,1) = data.trial{1};
     save(D);

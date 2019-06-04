@@ -12,10 +12,10 @@ x=[];
 
 for a = 1:length(channels)
     for b  =1:length(possible_list)
-        if ~exact 
+        if ~exact
             nsearch = length(possible_list{b});
-        elseif exact
-            nsearch = 1;
+        elseif exact > 0
+            nsearch = 1;    
         end
         for c =1:nsearch
             if exact ==1 

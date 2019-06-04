@@ -5,10 +5,16 @@ D=spm_eeg_load(filename);
 
 nD=clone(D,['i' D.fname]);
 
-for a = 1:D.nchannels;
-    for b = 1:D.ntrials;
-        nD(a,:,b) = D(a,:,b)-squeeze(mean(D(a,:,ci(D.conditions{b},D.conditions)),3));
-    end
+
+
+conds = D.condlist;
+
+for a = 1:length(conds)
+    i=ci(conds{a},D.conditions);
+    nD(:,:,i) = bsxfun(@minus,squeeze(D(:,:,i)),nanmean(D(:,:,i),3));  
 end
+
 save(nD)
+
+
 

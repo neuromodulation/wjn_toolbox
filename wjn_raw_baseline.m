@@ -3,8 +3,12 @@ tf = squeeze(tf);
 if size(tf,1)==length(f)
     tf = tf';
 end
+% keyboard
+i = isnan(tf);
+tf(i)=0;
 rtf = bsxfun(@rdivide,...
     bsxfun(@minus,...
     tf,...
     nanmean(tf)),...
-    nanstd(tf))'.*100;
+    nanstd(tf))';
+rtf(i')=nan;

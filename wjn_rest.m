@@ -1,4 +1,4 @@
-function COH = wjn_rest(filename,flow,fhigh,granger_analysis,cfc_analysis)
+function COH = wjn_rest(filename,granger_analysis,cfc_analysis,flow,fhigh)
 
 if ~exist('granger_analysis','var')
     granger_analysis=0;
@@ -17,11 +17,16 @@ if strcmp(unique(D.chantype),'Other')
     D=wjn_fix_chantype(D.fullfile);
 end
 
+if strcmp(D.type,'continuous')
+    D=wjn_epoch(D.fullfile,1024/D.fsample);
+end
+
 data = D.ftraw(0);
 fs = D.fsample;
-n = fs/200;
-s = [48 52];
-
+% n = fs/200;
+n= 1024/D.fsample;
+% s = [48 52];
+s = [58 62];
 cfg = [];
 % cfg.bsfilter = 'yes';
 % cfg.bsfreq = [49 51];
@@ -30,11 +35,13 @@ cfg = [];
 % end
 data=ft_preprocessing(cfg,data);
 Ntrials = D.ntrials;
-
+% Ntrials = numel(60:120);
 cfg =[];
+% cfg.trials = [60:120];
 cfg.method = 'mtmfft';
 cfg.output = 'pow';
-cfg.taper = 'hanning';
+cfg.taper = 'dpss';
+cfg.tapsmofrq=2;
 cfg.keeptrials = 'yes';
 cfg.keeptapers='no';
 cfg.pad = 'nextpow2';
@@ -42,7 +49,7 @@ cfg.padding = 2;
 inp = ft_freqanalysis(cfg,data);
 
 pow = inp.powspctrm;
-pow(:,:,sc(inp.freq,47):sc(inp.freq,53)) = 0;
+pow(:,:,wjn_sc(inp.freq,47):wjn_sc(inp.freq,53)) = 0;
 mpow = squeeze(nanmean(pow,1));
 if size(mpow,1)>size(mpow,2)
     mpow = mpow';
@@ -92,7 +99,8 @@ if D.nchannels>1
 cfg =[];
 cfg.method = 'mtmfft';
 cfg.output = 'powandcsd';
-cfg.taper = 'hanning';
+cfg.taper = 'dpss';
+cfg.tapsmofrq=2;
 cfg.output ='powandcsd';
 cfg.keeptrials = 'yes';
 cfg.keeptapers='no';
@@ -107,7 +115,7 @@ cfg2 = cfg1;
 cfg2.complex = 'imag';
 icoh = ft_connectivityanalysis(cfg2, inp);
 
-
+% keyboard
 Ntrials = D.ntrials;
 shift=[5:Ntrials 1:4];
 scoh=coh;
@@ -200,7 +208,8 @@ for i = 1:numel(data)
     cfg.output ='fourier';
     cfg.keeptrials = 'yes';
     cfg.keeptapers='yes';
-    cfg.taper = 'hanning';
+    cfg.taper = 'dpss';
+    cfg.tapsmofrq=2;
     cfg.pad = 'nextpow2';
     cfg.padding = 2;
     cfg.method          = 'mtmfft';

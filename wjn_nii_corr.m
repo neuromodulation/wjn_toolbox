@@ -35,7 +35,7 @@ if length(files) == length(v)
             if m==1
                 temp=wjn_mask_nii(temp.fname,fullfile(leadp,'gm.nii'));
             elseif ischar(m)
-                temp=wjn_mask_nii(temp.fname,m,.001);
+                temp=wjn_mask_nii(temp.fname,m,10);
             end
             i=temp.img(:);
             i(round(i)==0)=nan;
