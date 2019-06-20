@@ -1,5 +1,5 @@
 % script to automatically detect the pc used
-function [mf,dbf,sys,d,spmf,leadf] = getsystem
+function [mf,dbf,sys,d,spmf,leadf,gitf] = getsystem
 % [mf,dbf,sys,d,spmf,leadf] = getsystem
 %Desktop vs. Work vs. Laptop
 %[mf,sys,dbf] = getsystem
@@ -53,7 +53,8 @@ elseif exist('E:\Dropbox (Personal)\matlab\','dir')
     mf = 'E:\Dropbox (Personal)\matlab\';
 %     spmf = fullfile('C:\','spm');
     spmf= fullfile(mf,'spm12');
-    leadf = fullfile(mf,'leaddbs');
+    gitf = fullfile('E:\GitHub\');
+    leadf = fullfile(gitf,'leaddbs');
     d = 'E:\Dropbox (Personal)\';
     sys = 'Desktop';
 elseif exist('/home/agh14/julian','dir')

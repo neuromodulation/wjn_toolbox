@@ -97,6 +97,9 @@ Vol.dt =[16,0];
 Vol.fname=fullfile(fdir,[fname '.nii']);
 spm_write_vol(Vol,nii(1:Vol.dim(1),1:Vol.dim(2),1:Vol.dim(3)));
 end
+
+
+
 % keyboard
 
 

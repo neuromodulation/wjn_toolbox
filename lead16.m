@@ -11,7 +11,12 @@ end
 
 close all
 d=mdf(2);
-addpath(genpath(fullfile(getsystem,'leaddbs')))
+
+if exist('E:\GitHub\leaddbs','dir')
+    addpath(genpath('E:\GitHub\leaddbs'))
+else
+    addpath(genpath(fullfile(getsystem,'leaddbs')))
+end
 
 if w
     lead dbs
