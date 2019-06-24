@@ -11,6 +11,15 @@ if  exist('C:\Users\rsmeg\','dir')
     leadf = fullfile(mf,'lead');
     d = 'C:\Users\rsmeg\Dropbox';
     sys = 'RSMEG';
+    
+elseif    exist('E:\OneDrive\Arbeit\Projekte\matlab_scripts\','dir')
+        dbf = 'E:\OneDrive\Arbeit\Projekte\';
+        mf = 'E:\OneDrive\Arbeit\Projekte\matlab_scripts\wjn_toolbox';
+        d = 'E:\OneDrive';
+        leadf = 'E:OneDrive\Arbeit\Projekte\matlab_scripts\leaddbs';
+        spmf = 'E:OneDrive\Arbeit\Projekte\matlab_scripts\spm';
+        sys = 'Roxanne NWFZ';
+
 elseif exist('C:\Users\lfp')
     dbf = 'C:\Users\wolfj\Dropbox\Motorneuroscience\';
     mf = 'C:\Users\wolfj\Dropbox\matlab\';
