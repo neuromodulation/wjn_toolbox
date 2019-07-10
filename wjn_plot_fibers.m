@@ -13,6 +13,13 @@ if ischar(fc)
                 fc{a} = fibers(fibers(:,4)==ids(a),:);
             end
         end
+elseif ~iscell(fc)
+    fibers = fc;
+    i = unique(fibers(:,4));
+    fc={};
+    for a =1:length(i)
+        fc{a} = fibers(fibers(:,4)==i(a),:);
+    end
 end
 
 if size(c,1)>1
