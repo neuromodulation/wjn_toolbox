@@ -48,11 +48,11 @@ if ~exist('mm','var')
 end
 
 
-
+oname = fname;
 for a = 1:nregions
     
     if nregions>1
-        fname = [fname '_' num2str(a)];
+        fname = [oname '_' num2str(a)];
         cmni = mni{a};
     end
     if isnan(cmni(1,1))
