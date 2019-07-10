@@ -20,7 +20,11 @@ if ~exist('connectome','var')
 end
 
 if ischar(connectome)
-    connectome = load(fullfile(ea_getearoot,'connectomes','dMRI',connectome,'data.mat'));
+    try
+        connectome = load(connectome);
+    catch
+        connectome = load(fullfile(ea_getearoot,'connectomes','dMRI',connectome,'data.mat'));
+    end
 end
 
 
