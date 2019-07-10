@@ -1,6 +1,6 @@
 function [p,s,v,F] = wjn_plot_surface(filename,color,dec)
 
-if ~exist('filename','var')
+if ~exist('filename','var') || isempty(filename)
     filename = wjn_mni_cortex;
 end
 

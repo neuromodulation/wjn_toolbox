@@ -5,8 +5,6 @@ mf = getsystem;
 wjndir = fullfile(mf,'wjn_toolbox');
 gitdir = 'E:\GitHub\wjn_toolbox';
 
-copyfile(fullfile(wjndir,'wjn_vm_list.m'),mf)
-
 if ~exist(wjndir,'dir')
     mkdir(wjndir);
 end

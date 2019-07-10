@@ -36,7 +36,7 @@ else
     matlabbatch{1}.spm.meeg.tf.tf.timewin = [-Inf Inf];
     it = 1:D.nsamples;
 end
-matlabbatch{1}.spm.meeg.tf.tf.method.morlet.ncycles = 9;
+matlabbatch{1}.spm.meeg.tf.tf.method.morlet.ncycles = 8;
 matlabbatch{1}.spm.meeg.tf.tf.method.morlet.timeres = 0;
 matlabbatch{1}.spm.meeg.tf.tf.method.morlet.subsample = subsample;
 matlabbatch{1}.spm.meeg.tf.tf.phase = 0;

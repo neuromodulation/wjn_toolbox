@@ -103,7 +103,7 @@ if exist('eventtimes','var')
 if exist('trl','var')
     inan=[find(isnan(trl(:,1)))];
     trl(inan,:)=[];
-    D.trl = trl;
+    D.trl = trl(ni,:);
     D.ttrl = D.trl/D.fsample;
 
 end
