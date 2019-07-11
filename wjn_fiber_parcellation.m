@@ -56,7 +56,7 @@ for a = 1:length(labels)
         end
         mni=unique(mni,'rows');
         disp('MNI voxels found')
-        save(fullfile(leadp,[labels{a} '.mat']),'mni');
+        %save(fullfile(leadp,[labels{a} '.mat']),'mni');
     end
      if ~cont
         ix = fibers(:,4);
