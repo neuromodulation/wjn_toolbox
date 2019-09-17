@@ -57,6 +57,17 @@ for a = 1:nregions
     end
     if isnan(cmni(1,1))
         continue
+    elseif ischar(cmni)
+        cmni_nii = wjn_read_nii(cmni);
+        
+        cmni_i = find(cmni_nii.img>0);
+        cmni = [];
+        for b = 1:length(cmni_i)
+            [cmni_x cmni_y cmni_z] = ind2sub(cmni_nii.dim,cmni_i(b)); 
+           cmni_c = [cmni_x cmni_y cmni_z 1]*cmni_nii.mat';
+           cmni(b,:) = cmni_c(1:3);
+        end
+        
     end
     
     if ~cont
@@ -71,21 +82,10 @@ for a = 1:nregions
     
     disp('...searching fibers...')
     
-    % if isfield(connectome,'kdbg') && cont
-    %     kdt = 0;
-    %     kdbg = 1;
-    %     i= rangesearch(connectome.kdbg,mni,mm,'Distance','Chebychev');
-    %         ix = connectome.bgcrop(:,4);
-    % elseif isfield(connectome,'kdt') && cont
-    %     kdbg = 0;
-    %     kdt=1;
-    %     i = rangesearch(connectome.kdt,mni,mm,'Distance','Chebychev');
-    %
-    % else
+
     kdt = 0;
     kdbg = 0;
     i= rangesearch(connectome.fibers(iss,1:3),cmni,mm,'Distance','Chebychev');
-    % end
     
     ni=[];
     if ~isempty(i)
