@@ -59,11 +59,11 @@ for a = 1:nregions
         continue
     elseif ischar(cmni)
         cmni_nii = wjn_read_nii(cmni);
-        
+        fname = [oname '_' cmni(1:end-4)];
         cmni_i = find(cmni_nii.img>0);
         cmni = [];
         for b = 1:length(cmni_i)
-            [cmni_x cmni_y cmni_z] = ind2sub(cmni_nii.dim,cmni_i(b)); 
+            [cmni_x,cmni_y,cmni_z] = ind2sub(cmni_nii.dim,cmni_i(b)); 
            cmni_c = [cmni_x cmni_y cmni_z 1]*cmni_nii.mat';
            cmni(b,:) = cmni_c(1:3);
         end
