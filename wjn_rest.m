@@ -1,5 +1,7 @@
 function COH = wjn_rest(filename,granger_analysis,cfc_analysis,flow,fhigh)
 
+normfreq = [3 47; 53 97];
+
 if ~exist('granger_analysis','var')
     granger_analysis=0;
 end
@@ -18,7 +20,7 @@ if strcmp(unique(D.chantype),'Other')
 end
 
 if strcmp(D.type,'continuous')
-    D=wjn_epoch(D.fullfile,1024/D.fsample);
+    D=wjn_epoch(D.fullfile,2);
 end
 
 data = D.ftraw(0);
@@ -49,13 +51,13 @@ cfg.padding = 2;
 inp = ft_freqanalysis(cfg,data);
 
 pow = inp.powspctrm;
-pow(:,:,wjn_sc(inp.freq,47):wjn_sc(inp.freq,53)) = 0;
+pow(:,:,wjn_sc(inp.freq,normfreq(1,2)):wjn_sc(inp.freq,normfreq(2,1))) = 0;
 mpow = squeeze(nanmean(pow,1));
 if size(mpow,1)>size(mpow,2)
     mpow = mpow';
 end
-sump = nansum(mpow(:,searchclosest(inp.freq,5):searchclosest(inp.freq,95)),2);
-stdp = nanstd(mpow(:,searchclosest(inp.freq,5):searchclosest(inp.freq,95)),[],2);
+sump = nansum(mpow(:,searchclosest(inp.freq,normfreq(1,1)):searchclosest(inp.freq,normfreq(2,2))),2);
+stdp = nanstd(mpow(:,searchclosest(inp.freq,normfreq(1,1)):searchclosest(inp.freq,normfreq(2,2))),[],2);
 logfit = fftlogfitter(inp.freq',mpow')';
 
 for a=1:size(mpow,1)
@@ -63,7 +65,7 @@ for a=1:size(mpow,1)
     spow(a,:) = (mpow(a,:)./stdp(a));
     for b = 1:size(pow,1)
         for c = 1:size(pow,3)
-            srpow(a,c) = pow(b,a,c)/sum(pow(b,a,searchclosest(inp.freq,5):searchclosest(inp.freq,95)))*100; 
+            srpow(a,c) = pow(b,a,c)/sum(pow(b,a,searchclosest(inp.freq,normfreq(1,1)):searchclosest(inp.freq,normfreq(2,2))))*100; 
         end
     end
 end
