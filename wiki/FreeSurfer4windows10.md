@@ -30,9 +30,9 @@ To get Ubuntu apt online you need to define the your proxy, therefore open the p
 
 write the lines (replace charite with your proxy address):
 
-*Acquire::http::proxy "http://proxy.charite.de:8080";*
-*Acquire::https::proxy "https://proxy.charite.de:8080";*
-*Acquire::ftp::proxy "ftp://proxy.charite.de:8080";*
+*Acquire::http::proxy "http://proxy.charite.de:8080";*  
+*Acquire::https::proxy "https://proxy.charite.de:8080";*  
+*Acquire::ftp::proxy "ftp://proxy.charite.de:8080";*  
 
 save with Ctrl+O Enter
 and exit with Ctrl+X Enter
