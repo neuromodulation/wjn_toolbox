@@ -5,7 +5,7 @@ Date of creation is November 25th 2019.
 
 The entire install including Downloads (depending on your connection) took me less than 20 minutes.
 
-### Instal WSL and Ubuntu
+### Install WSL and Ubuntu
 
 First install the Windows subsystem for Linux which gives you access to a Linux shell from here on called bash:
 
