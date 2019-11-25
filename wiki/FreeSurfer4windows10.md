@@ -99,6 +99,6 @@ If it worked you can now use the windows explorer to find both the original samp
 
 You can now run recon-all from windows command line or within matlab or python using:
 
-*bash -ic "recon-all -i yourfile.nii -s yoursubjectname -all*
+*bash -ic "recon-all -i yourfile.nii -s yoursubjectname -all"*
 
 
