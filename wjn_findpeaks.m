@@ -1,6 +1,6 @@
 function [pk,fpk,pkchan,pks,fpks]=wjn_findpeaks(f,pow,freqrange)
 
-i=wjn_sc(f,freqrange(1):freqrange(2));
+i=wjn_sc(f,freqrange(1)):wjn_sc(f,freqrange(end));
 
 for a = 1:size(pow,1)
     [p,fi]=findpeaks(pow(i),'sortstr','descend','Npeaks',1);

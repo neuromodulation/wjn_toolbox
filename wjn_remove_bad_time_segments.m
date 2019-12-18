@@ -8,11 +8,18 @@ end
 
 if strcmp(mode,'remove')
     ksamples = 1:D.nsamples;
-    rsamples = D.indsample(segments);
+    rsamples=[];
+    for a = 1:size(segments,1)
+        rsamples = [rsamples D.indsample(segments(a,1)):D.indsample(segments(a,end))];
+    end
     ksamples(rsamples)=[];
 elseif strcmp(mode,'keep')
     rsamples = 1:D.nsamples;
-    ksamples = D.indsample(segments);
+    ksamples = [];
+    for a=1:size(segments,1)
+        ksamples = [ksamples D.indsample(segments(a,1)):D.indsample(segments(a,end))];
+    end
+            
     rsamples(ksamples) = [];
 end
 
