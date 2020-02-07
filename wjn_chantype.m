@@ -7,8 +7,8 @@ if ~iscell(input)
 end
 
 cT = repmat({'Other'},size(input));
-cT(ci({'LFP','STN','GPi','VIM'},input))={'LFP'};
-cT(ci({'EMG','SCM'},input))={'EMG'};
+cT(ci({'LFP','STN','GPi','VIM','ECOG'},input))={'LFP'};
+cT(ci({'EMG','SCM','BIP'},input))={'EMG'};
 cT(ci({'EEG','C3','C4','Cz','Fz'},input))={'EEG'};
 
 if exist('D','var')
