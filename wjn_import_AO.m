@@ -1,4 +1,4 @@
-function [D,Db] = wjn_import_AO_EEG(filename,channels)
+function D = wjn_import_AO(filename,channels)
 
 
 
@@ -55,7 +55,6 @@ for a = 1:length(iSF)
     info.(fields{iSF(a)}) = d.(fields{iSF(a)});
 end
 
-
 D=wjn_import_rawdata(['spmeeg_' filename],double(data),chanlabels, fsample);
 info.T = T;
 D.AO = info;
@@ -74,10 +73,30 @@ if isfield(D.AO,'CStimMarker_1')
     D.AO.STIM_EVENT_OFF = strrep(strcat({'STIM_OFF_'},num2str(D.AO.STIM_FREQ'),{'Hz_'},D.AO.STIM_CHANNEL',{'_'},num2str(D.AO.STIM_AMP'),{'uA'}),' ','');
     
 end
-D=wjn_ecog_rereference(D.fullfile);
+
+iecog = ci('ECOG',D.chanlabels);
+if ~isempty(iecog)
+    D=wjn_ecog_rereference(D.fullfile);
+end
+
+istnl = ci({'STNL8','STNL1'},D.chanlabels)
+addchan = {};
+idata = [];
+if length(istnl) == 2
+    idata(end+1,:) = D(istnl(2),:)-D(istnl(1),:);
+    addchan{end+1} = 'STNL18';
+end
+
+istnr = ci({'STNR8','STNR1'},D.chanlabels)
+if length(istnr) == 2
+    idata(end+1,:) = D(istnr(2),:)-D(istnr(1),:);
+    addchan{end+1} = [addchan 'STNR18'];
+end
+if ~isempty(addchan)
+    D=wjn_add_channels(D.fullfile,idata,addchan)
+end
+
 D=chantype(D,':',wjn_chantype(D.chanlabels));
-
-
 save(D);
 
 
