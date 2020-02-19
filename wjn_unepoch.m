@@ -1,17 +1,15 @@
-function D=wjn_unepoch_raw(Dfile)
+function D=wjn_unepoch(filename)
 
-try
-    D=spm_eeg_load(file);
-catch
-    D=file;
-end
+D=spm_eeg_load(filename);
 
-dim=size(D);
-trials = dim(end);
+nd = D(:,:,:);
+nd = nd(:,:);
 
-if length(dim) ==3
-for a = 1:dim(1);
-    nd = 
-    
+nsamples=length(nd);
+
+nD=clone(D,fullfile(D.path,['u' D.fname]),[D.nchannels nsamples 1]);
+nD(:,:,1)=nd(:,:);
+save(nD)
+D=nD;
 
 
