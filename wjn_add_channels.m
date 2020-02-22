@@ -4,6 +4,9 @@ D=spm_eeg_load(filename);
 
 d=D(:,:,:);
 
+if ischar(chans)
+    chans = {chans};
+end
 
 if isstruct(idata)
     chans = fieldnames(idata);

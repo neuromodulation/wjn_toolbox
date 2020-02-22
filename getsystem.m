@@ -82,12 +82,13 @@ elseif exist('C:\Users\movdis\Dropbox (Personal)\matlab\','dir')
     d = 'C:\Users\movdis\Dropbox (Personal)\';
     
     sys = 'Laptop';
-elseif exist('C:\Users\wolfj\Dropbox (Personal)\matlab\','dir')
+elseif exist('C:\Users\wolfj\Documents\GitHub\','dir')
     dbf = 'C:\Users\wolfj\Dropbox (Personal)\Motorneuroscience\';
-    mf = 'C:\Users\wolfj\Dropbox (Personal)\matlab\';
-    spmf = fullfile(mf,'spm12');
-    leadf = fullfile(mf,'leaddbs');
+    gitf = 'C:\Users\wolfj\Documents\GitHub\';
+    spmf = fullfile(gitf,'spm12');
+    leadf = fullfile(gitf,'leaddbs');
     d = 'C:\Users\wolfj\Dropbox (Personal)\';
+    mf = fullfile(gitf,'wjn_toolbox');
     
     sys = 'Thinkpad';
 elseif exist('D:\Users\movdis\Dropbox (Personal)\matlab\','dir')

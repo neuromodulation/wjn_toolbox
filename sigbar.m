@@ -1,4 +1,4 @@
-function [b]=sigbar(x,y,color,lim)
+function [b]=sigbar(x,y,color,alpha,lim)
 if ~exist('color','var')
     color = [0.8 0.8 0.8];
 end
@@ -15,7 +15,7 @@ if ~exist('y','var') || isempty(y)
 end
 
 b = bar(x,y,'barwidth',1,'FaceColor',color,'BaseValue',lim(1));
-set(b,'FaceAlpha',.5)
+set(b,'FaceAlpha',alpha)
 set(b,'EdgeColor','none');
 
 %keyboard
