@@ -235,20 +235,20 @@ scoh=coh{1};
 scoh.cohspctrm=zeros(size(scoh.cohspctrm));
 sgr = stat{1};
 sgr.grangerspctrm = zeros(size(sgr.grangerspctrm));
-
-for c=1:length(odata.label)              
-                sdata=odata;
-                sdata.trial(:,c,:)=odata.trial(shift,c,:);
-                cfg.channelcmb = {odata.label{c}, 'all'};
-                sinp = ft_freqanalysis(cfg, sdata);
-                ssgr = ft_connectivityanalysis(cfg2, sinp);                
-                sgr.grangerspctrm(c,:,:) = ssgr.grangerspctrm(c,:,:);             
-end
+% 
+% for c=1:length(odata.label)              
+%                 sdata=odata;
+%                 sdata.trial(:,c,:)=odata.trial(shift,c,:);
+%                 cfg.channelcmb = {odata.label{c}, 'all'};
+%                 sinp = ft_freqanalysis(cfg, sdata);
+%                 ssgr = ft_connectivityanalysis(cfg2, sinp);                
+%                 sgr.grangerspctrm(c,:,:) = ssgr.grangerspctrm(c,:,:);             
+% end
 
 
 COH.rcoh = coh{2}.cohspctrm;
 % G.scoh = scoh.cohspctrm;
-COH.sgranger = sgr.grangerspctrm;
+%COH.sgranger = sgr.grangerspctrm;
 COH.granger = stat{1}.grangerspctrm;
 COH.rgranger = stat{2}.grangerspctrm;
 COH.grangerchannelcmb = stat{1}.label;
