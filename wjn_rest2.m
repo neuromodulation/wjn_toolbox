@@ -24,9 +24,9 @@ if strcmp(D.type,'continuous')
 end
 
 data = D.ftraw(0);
+cfg =[];
 data=ft_preprocessing(cfg,data);
 Ntrials = D.ntrials;
-cfg =[];
 
 cfg.method = 'mtmfft';
 cfg.output = 'pow';
@@ -105,9 +105,8 @@ cfg2 = cfg1;
 cfg2.complex = 'imag';
 icoh = ft_connectivityanalysis(cfg2, inp);
 
-% keyboard
-Ntrials = D.ntrials;
-shift=[5:Ntrials 1:4];
+
+shift=randi(Ntrials,[1,Ntrials]);
 scoh=coh;
 scoh.cohspctrm=zeros(size(scoh.cohspctrm));
 for c=1:length(data.label)

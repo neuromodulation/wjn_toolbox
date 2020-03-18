@@ -12,13 +12,3 @@ legend(COH.channels(a))
 figone(7)
 end
 
-
-for a =1:length(COH.channels)
-    for b = 1:length(COH.channels)
-        figure
-        plot(
-        
-    
-
-figure,
-plot(COH.gf,squeeze(COH.granger(1,5:end,:))),legend(COH.grangerchannelcmb)

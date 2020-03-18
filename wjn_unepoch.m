@@ -12,4 +12,9 @@ nD(:,:,1)=nd(:,:);
 save(nD)
 D=nD;
 
+load(D.fullfile)
+D.type = 'continuous';
+save(fullfile(D.path,D.fname),'D')
+D=spm_eeg_load(fullfile(D.path,D.fname));
+
 
