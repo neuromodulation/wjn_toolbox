@@ -24,9 +24,10 @@ if strcmp(D.type,'continuous')
 end
 
 data = D.ftraw(0);
+cfg =[];
 data=ft_preprocessing(cfg,data);
 Ntrials = D.ntrials;
-cfg =[];
+
 
 cfg.method = 'mtmfft';
 cfg.output = 'pow';

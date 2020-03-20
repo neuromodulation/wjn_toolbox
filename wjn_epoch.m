@@ -25,7 +25,7 @@ end
 if exist('trl','var') && ~isempty(trl)
     if size(trl,2)==1
         for a = 1:length(trl)
-            ntrl(a,:) = [round(D.indsample(trl(a))+timewin(1)*D.fsample) round(D.indsample(trl(a))+(timewin(1)+diff(timewin))*D.fsample) round(timewin(1)*D.fsample)];
+            ntrl(a,:) = [round(D.indsample(trl(a))+timewin(1)*D.fsample) round(D.indsample(trl(a))+(timewin(1)+diff(timewin))*D.fsample) timewin(1)*D.fsample];
             if length(conds)==1
                 conditionlabels{a}=conds{1};
             end
