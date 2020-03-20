@@ -197,12 +197,12 @@ for N = 1:length(freqind)
 end
 
 nsamples = size(data, 2);
-
+% 
 if strcmp(datatype,'trials')
     bad  = spm_squeeze(any(D.badsamples(D.selectchannels(S.channels), cut:D.nsamples-cut, D.indtrial(S.conditions, 'GOOD')), 1), 1);
     BAD  = zeros(1, size(AMP, 2));
     for k = 1:size(bad, 2)
-        BAD((k-1)*trialsamples+1:k*trialsamples) = bad(:, k);
+        BAD((k-1)*trialsamples+1:k*trialsamples) = 0;
     end
 elseif strcmp(datatype,'continuous')
     BAD  = spm_squeeze(any(D.badsamples(D.selectchannels(S.channels), ':', 1), 1), 1);
@@ -214,6 +214,7 @@ elseif strcmp(datatype,'continuous')
     end
 end
 bad = bad';
+
 
 %-Get phase time series
 %--------------------------------------------------------------------------
