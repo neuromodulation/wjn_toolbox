@@ -5,7 +5,7 @@ normfreq = [3 47; 53 97];
 if ~exist('granger_analysis','var')
     granger_analysis=0;
 end
-if ~exist('cfc_analysis','var')
+if ~exist('cfc','var')
     cfc_analysis = 0;
 end
 
@@ -24,9 +24,9 @@ if strcmp(D.type,'continuous')
 end
 
 data = D.ftraw(0);
+cfg =[];
 data=ft_preprocessing(cfg,data);
 Ntrials = D.ntrials;
-cfg =[];
 
 cfg.method = 'mtmfft';
 cfg.output = 'pow';
@@ -105,9 +105,8 @@ cfg2 = cfg1;
 cfg2.complex = 'imag';
 icoh = ft_connectivityanalysis(cfg2, inp);
 
-% keyboard
-Ntrials = D.ntrials;
-shift=[5:Ntrials 1:4];
+
+shift=randi(Ntrials,[1,Ntrials]);
 scoh=coh;
 scoh.cohspctrm=zeros(size(scoh.cohspctrm));
 for c=1:length(data.label)
@@ -163,9 +162,9 @@ pval=1-(0.05)^(1/(1*(Ntrials*1000)-1));
 for a=1:length(COH.channels)
     rtf(a,:,:) = bsxfun(@rdivide,...
     bsxfun(@minus,...
-    squeeze(COH.pow(a,:,:))',...
-    squeeze(nanmean(COH.pow(a,:,:),3))),...
-    nanmean(squeeze(COH.pow(a,:,:))')).*100;
+    squeeze(COH.pow(3,:,:))',...
+    squeeze(nanmean(COH.pow(3,:,:),3))),...
+    nanmean(squeeze(COH.pow(3,:,:))')).*100;
 end
 
 

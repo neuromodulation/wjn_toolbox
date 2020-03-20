@@ -1,5 +1,9 @@
 function p=wjn_plot_raw_signals(time,data,chanlabels)
 
+if size(time)==  [1,1]
+    time = linspace(0,length(data)/time,length(data));
+end
+
 if ~exist('chanlabels','var')
     for a = 1:size(data,1)
         chanlabels{a} = ['chan' num2str(a)];
