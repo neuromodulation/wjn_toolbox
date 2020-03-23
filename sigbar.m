@@ -2,6 +2,9 @@ function [b]=sigbar(x,y,color,alpha,lim)
 if ~exist('color','var')
     color = [0.8 0.8 0.8];
 end
+if ~exist('alpha','var')
+    alpha = 0.8
+end
 
 
 if ~exist('lim','var')

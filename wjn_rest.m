@@ -5,7 +5,7 @@ normfreq = [3 47; 53 97];
 if ~exist('granger_analysis','var')
     granger_analysis=0;
 end
-if ~exist('cfc','var')
+if ~exist('cfc_analysis','var')
     cfc_analysis = 0;
 end
 
@@ -25,9 +25,15 @@ end
 
 data = D.ftraw(0);
 cfg =[];
+<<<<<<< HEAD
 data=ft_preprocessing(cfg,data);
 Ntrials = D.ntrials;
 
+=======
+
+data=ft_preprocessing(cfg,data);
+Ntrials = D.ntrials;
+>>>>>>> 0a66eb1275db2620bed883136389ef38f0d0fd87
 
 cfg.method = 'mtmfft';
 cfg.output = 'pow';
@@ -164,9 +170,9 @@ pval=1-(0.05)^(1/(1*(Ntrials*1000)-1));
 for a=1:length(COH.channels)
     rtf(a,:,:) = bsxfun(@rdivide,...
     bsxfun(@minus,...
-    squeeze(COH.pow(3,:,:))',...
-    squeeze(nanmean(COH.pow(3,:,:),3))),...
-    nanmean(squeeze(COH.pow(3,:,:))')).*100;
+    squeeze(COH.pow(a,:,:))',...
+    squeeze(nanmean(COH.pow(a,:,:),3))),...
+    nanmean(squeeze(COH.pow(a,:,:))')).*100;
 end
 
 

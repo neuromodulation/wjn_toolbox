@@ -24,7 +24,6 @@ end
 
 if exist('trl','var') && ~isempty(trl)
     if size(trl,2)==1
-<<<<<<< HEAD
         if length(trl)<1000
             for a = 1:length(trl)
                 ntrl(a,:) = [D.indsample(trl(a))+timewin(1)*D.fsample D.indsample(trl(a))+(timewin(1)+diff(timewin))*D.fsample timewin(1)*D.fsample];
@@ -36,14 +35,6 @@ if exist('trl','var') && ~isempty(trl)
             itrl = trl.*D.fsample+1;
             xtrl=[round(timewin(1)*D.fsample),round((timewin(1)+diff(timewin))*D.fsample)];
             ntrl = [itrl+xtrl(:,1) itrl+xtrl(:,2) repmat(timewin(1)*D.fsample,size(itrl))];
-=======
-        for a = 1:length(trl)
-            ntrl(a,:) = [round(D.indsample(trl(a))+timewin(1)*D.fsample) round(D.indsample(trl(a))+(timewin(1)+diff(timewin))*D.fsample) timewin(1)*D.fsample];
-            if length(conds)==1
-                conditionlabels{a}=conds{1};
-            end
-            
->>>>>>> 9514c0892a277fd0e2a09f2a0e0efd320dcfe841
         end
     elseif size(trl,2)==3
         ntrl = trl;
