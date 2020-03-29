@@ -124,8 +124,9 @@ for nrun = 1:2
         spw(a).Imean=dmean';
         spw(a).Ipre = dpre';
         spw(a).Ipost = dpost';
-        
-        spw(a).cond = repmat({['SPW_' runs{nrun} '_' D.chanlabels{chs(a)}]},size(ni))';
+        %keyboard
+        %spw(a).cond = repmat({['SPW_' runs{nrun} '_' D.chanlabels{chs(a)}]},size(ni))';
+        spw(a).cond = strcat({[D.chanlabels{chs(a)} '_' runs{nrun}] },num2str([1:length(ni)]'));
         alltimes=[alltimes;D.time(ni)'];
         allconds = [allconds;spw(a).cond];
         T=[T;struct2table(spw(a))];
