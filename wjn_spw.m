@@ -106,8 +106,9 @@ for nrun = 1:2
         allconds = [allconds;spw(a).cond];
         
     end
-    eval([runs{nrun} '=struct2table(spw)']);
-    D.spw.runs{nrun} = struct2table(spw);
+    keyboard
+    eval([runs{nrun} '=struct2table(spw(a))']);
+    D.spw.(runs{nrun}){a} = struct2table(spw(a));
     save(D)
-    save(fullfile(D.path,['spw_' runs{nrun} '_' D.fname]),runs{nrun});
+    save(fullfile(D.path,['spw_' runs{nrun} '_' D.fname]),'D.spw');
 end
