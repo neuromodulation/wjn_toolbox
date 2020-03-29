@@ -150,6 +150,7 @@ hold on
 scatter(D.time(D.spw.pos(1).i),D(1,D.spw.pos(1).i))
 scatter(D.time(D.spw.pos(1).ipre),D(1,D.spw.pos(1).ipre))
 scatter(D.time(D.spw.pos(1).ipost),D(1,D.spw.pos(1).ipost))
+xlim([1 10])
 subplot(2,1,2)
 plot(D.time,D(1,:))
 hold on
