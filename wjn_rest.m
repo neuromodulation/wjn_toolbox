@@ -21,6 +21,7 @@ end
 
 if strcmp(D.type,'continuous')
     D=wjn_epoch(D.fullfile,2);
+    Ddelete=D;
 end
 
 data = D.ftraw(0);
@@ -243,10 +244,11 @@ end
   
 
     save(fnsave,'COH');
-end
+
   
-
-
+if exist('Ddelete','var')
+    Ddelete.delete();
+end
 
 
 
