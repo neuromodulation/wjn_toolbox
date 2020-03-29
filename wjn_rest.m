@@ -41,12 +41,12 @@ inp = ft_freqanalysis(cfg,data);
 pow = inp.powspctrm;
 pow(:,:,wjn_sc(inp.freq,normfreq(1,2)):wjn_sc(inp.freq,normfreq(2,1))) = 0;
 mpow = squeeze(nanmean(pow,1));
-if size(mpow,1)>size(mpow,2)
-    mpow = mpow';
-end
+% if size(mpow,1)>size(mpow,2)
+%     mpow = mpow';
+% end
 sump = nansum(mpow(:,searchclosest(inp.freq,normfreq(1,1)):searchclosest(inp.freq,normfreq(2,2))),2);
 stdp = nanstd(mpow(:,searchclosest(inp.freq,normfreq(1,1)):searchclosest(inp.freq,normfreq(2,2))),[],2);
-logfit = fftlogfitter(inp.freq',mpow')';
+logfit = fftlogfitter(inp.freq',mpow)';
 
 for a=1:size(mpow,1)
     rpow(a,:) = (mpow(a,:)./sump(a)).*100;
@@ -189,7 +189,10 @@ if granger_analysis
 clear inp coh icoh stat
 odata = D.ftraw(0); 
 rdata = odata(:,1:end);
-rdata.trial = rdata.trial(:, :, end:-1:1);
+
+for a =1:length(rdata.trial)
+    rdata.trial{a} = rdata.trial{a}(:, end:-1:1);
+end
 data = {odata, rdata};
 
 for i = 1:numel(data)
@@ -217,28 +220,10 @@ for i = 1:numel(data)
     
 end
 
-Ntrials = size(odata.trial,1);
-shift=[2:Ntrials 1];
-scoh=coh{1};
-scoh.cohspctrm=zeros(size(scoh.cohspctrm));
-sgr = stat{1};
-sgr.grangerspctrm = zeros(size(sgr.grangerspctrm));
-% 
-% for c=1:length(odata.label)              
-%                 sdata=odata;
-%                 sdata.trial(:,c,:)=odata.trial(shift,c,:);
-%                 cfg.channelcmb = {odata.label{c}, 'all'};
-%                 sinp = ft_freqanalysis(cfg, sdata);
-%                 ssgr = ft_connectivityanalysis(cfg2, sinp);                
-%                 sgr.grangerspctrm(c,:,:) = ssgr.grangerspctrm(c,:,:);             
-% end
 
-
-COH.rcoh = coh{2}.cohspctrm;
-% G.scoh = scoh.cohspctrm;
-%COH.sgranger = sgr.grangerspctrm;
 COH.granger = stat{1}.grangerspctrm;
 COH.rgranger = stat{2}.grangerspctrm;
+COH.rcgranger = stat{1}.grangerspctrm-stat{2}.grangerspctrm;
 COH.grangerchannelcmb = stat{1}.label;
 COH.gf = stat{1}.freq;
 
