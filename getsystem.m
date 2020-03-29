@@ -19,7 +19,15 @@ elseif exist('E:\OneDrive\Arbeit\Projekte\matlab_scripts\','dir')
         leadf = 'E:OneDrive\Arbeit\Projekte\matlab_scripts\leaddbs';
         spmf = 'E:OneDrive\Arbeit\Projekte\matlab_scripts\spm12';
         sys = 'Roxanne NWFZ';
-    
+        
+elseif exist('C:\Users\Roxanne\OneDrive\Arbeit\Projekte\matlab_scripts\','dir') 
+        dbf = 'C:\Users\Roxanne\OneDrive\Arbeit\Projekte\';
+        mf = 'C:\code\matlab\wjn_toolbox';
+        d = 'C:\Users\Roxanne\OneDrive';
+        leadf = 'C:\Users\Roxanne\OneDrive\Arbeit\Projekte\matlab_scripts\leaddbs';
+        spmf = 'C:\Users\Roxanne\OneDrive\Arbeit\Projekte\matlab_scripts\spm12';
+        sys = 'Roxanne Home';
+        
 elseif exist('C:\Users\lfp')
     dbf = 'C:\Users\wolfj\Dropbox\Motorneuroscience\';
     mf = 'C:\Users\wolfj\Dropbox\matlab\';
@@ -82,13 +90,12 @@ elseif exist('C:\Users\movdis\Dropbox (Personal)\matlab\','dir')
     d = 'C:\Users\movdis\Dropbox (Personal)\';
     
     sys = 'Laptop';
-elseif exist('C:\Users\wolfj\Documents\GitHub\','dir')
+elseif exist('C:\Users\wolfj\Dropbox (Personal)\matlab\','dir')
     dbf = 'C:\Users\wolfj\Dropbox (Personal)\Motorneuroscience\';
-    gitf = 'C:\Users\wolfj\Documents\GitHub\';
-    spmf = fullfile(gitf,'spm12');
-    leadf = fullfile(gitf,'leaddbs');
+    mf = 'C:\Users\wolfj\Dropbox (Personal)\matlab\';
+    spmf = fullfile(mf,'spm12');
+    leadf = fullfile(mf,'leaddbs');
     d = 'C:\Users\wolfj\Dropbox (Personal)\';
-    mf = fullfile(gitf,'wjn_toolbox');
     
     sys = 'Thinkpad';
 elseif exist('D:\Users\movdis\Dropbox (Personal)\matlab\','dir')

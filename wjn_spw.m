@@ -1,24 +1,34 @@
 function [D,alltimes,allconds]=wjn_spw(filename)
 
-filtfreq = 95;
-D=spm_eeg_load(filename);
-spw=[];
 
+D=spm_eeg_load(filename);
+fpath = D.path;
+fname = D.fname;
+D=wjn_spm_copy(fullfile(fpath,fname),fullfile(fpath,['spw_' fname]));
+spw=[];
+filtfreq = [3 D.fsample/4];
 chs = unique([ci({'EEG','LFP'},D.chantype) ci({'EEG','LFP'},D.chanlabels)]);
 alltimes=[];
 allconds=[];
 mssamples = round(2*round(D.fsample/1000));
 runs = {'neg','pos'};
-for nrun = 1:2
-    for a = 1:length(chs)
-        keep('runs','nrun','a','filename','D','spw','filtfreq','chs','alltimes','allconds','mssamples')
+T=table;
+
+for a = 1:length(chs)
+    for nrun = 1:2
+        keep('T','runs','nrun','a','filename','D','spw','filtfreq','chs','alltimes','allconds','mssamples')
+        data=D(chs(a),:);
+        data(data==0)=nan;
+        good = ~isnan(data);
         if nrun == 1
-            data = -zscore(D(chs(a),:));
+            data(good) = -zscore(data(good));
         else
-            data = zscore(D(chs(a),:));
+            data(good) = zscore(data(good));
         end
-        fdata = ft_preproc_lowpassfilter(data,D.fsample,filtfreq);
-        [i,w,p,m,d]=wjn_raw_spw(fdata,0);
+        fdata= nan(size(D.time));
+        fdata(good) = ft_preproc_highpassfilter(data(good),D.fsample,filtfreq(1));
+        fdata(good) = ft_preproc_lowpassfilter(data(good),D.fsample,filtfreq(2));
+        [i,w,p,m,d]=wjn_raw_spw(abs(fdata),1);
         n=0;
         for b = 2:length(i)-1
             n=n+1;
@@ -42,12 +52,15 @@ for nrun = 1:2
                 cclimn =cci-1;
                 cclimp = D.fsample;
             else
-                cclimn=D.fsample;
+                cclimn=D.fsample-1;
                 cclimp = D.nsamples-cci-1;
             end
             
             nin = cci-1:-1:cci-cclimn;
             [fmin,fin]=findpeaks(-fdata(nin),'Npeaks',1);
+            if isempty(fin)
+                [fmin,fin]=min(fdata(nin));
+            end
             pci=nin(fin)-mssamples:nin(fin)+mssamples;
             [minn,in] = min(data(pci));
             cin=pci(in);
@@ -60,6 +73,9 @@ for nrun = 1:2
             
             nip = cci+1:cci+cclimp;
             [fmip,fip]=findpeaks(-fdata(nip),'Npeaks',1);
+            if isempty(fip)
+                [fmip,fip]=min(fdata(nip));
+            end
             pci=nip(fip)-mssamples:nip(fip)+mssamples;
             [mip,ip] = min(data(pci));
             cip=pci(ip);
@@ -86,16 +102,21 @@ for nrun = 1:2
         spw(a).Tfull = tfull';
         spw(a).Tdescent = tdescent';
         spw(a).Trise = trise';
+        spw(a).Tasymmetry = trise'./tdescent';
         
         spw(a).Vmax = vtrough';
         spw(a).Vpre = vpre';
-        spw(a).Vpost = vpost';
-        spw(a).Vdescent = vdescent';
-        spw(a).Vrise = vrise';
+        spw(a).Vpost = vpost';    
+        spw(a).Vasymmetry = vtrough'./nanmean([vpre',vpost'],2);
+        
+        spw(a).VTdescent = vdescent';
+        spw(a).VTrise = vrise';
+        spw(a).VTasymmetry = abs(vdescent')./abs(vrise');
         
         spw(a).Pfull = pfull';
         spw(a).Ppre = ppre';
         spw(a).Ppost = ppost';
+        spw(a).Pasymmetry = pfull'./nanmean([ppre',ppost'],2);
         
         spw(a).Imean=dmean';
         spw(a).Ipre = dpre';
@@ -104,11 +125,12 @@ for nrun = 1:2
         spw(a).cond = repmat({['SPW_' runs{nrun} '_' D.chanlabels{chs(a)}]},size(ni))';
         alltimes=[alltimes;D.time(ni)'];
         allconds = [allconds;spw(a).cond];
-        
+        T=[T;struct2table(spw(a))];
     end
-    keyboard
-    eval([runs{nrun} '=struct2table(spw(a))']);
-    D.spw.(runs{nrun}){a} = struct2table(spw(a));
+    
+    D.spw.(runs{nrun}) =spw;
+    D.spw.alltimes=alltimes;
+    D.spw.allconds = allconds;
+    D.spw.T=T;
     save(D)
-    save(fullfile(D.path,['spw_' runs{nrun} '_' D.fname]),'D.spw');
 end

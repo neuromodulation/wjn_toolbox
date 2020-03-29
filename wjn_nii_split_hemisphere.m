@@ -1,8 +1,12 @@
-function [rh,lh] = wjn_nii_split_hemisphere(nii)
+function [rh,lh] = wjn_nii_split_hemisphere(nii,crop)
 %% [rh,lh] = wjn_nii_split_hemisphere(nii)
 try
     nii = wjn_read_nii(nii);
 catch
+end
+
+if ~exist('crop','var')
+    crop=0;
 end
 
 for a = 1:nii.dim(1)
@@ -27,7 +31,9 @@ rh.fname = fullfile(fdir,['rh_' fname ext]);
 
 ea_write_nii(rh)
 ea_write_nii(lh)
-ea_crop_nii(lh.fname)
-ea_crop_nii(rh.fname)
+if crop
+    ea_crop_nii(lh.fname)
+    ea_crop_nii(rh.fname)
+end
 lh = wjn_read_nii(lh.fname);
 rh = wjn_read_nii(rh.fname);

@@ -17,12 +17,12 @@ else
 end
 
 
-if size(f,2) > size(f,1)
-    f = f';
-end
-if size(data,2) < size(data,1)
-    data = data';
-end
+% if size(f,2) > size(f,1)
+%     f = f';
+% end
+% if size(data,2) < size(data,1)
+%     data = data';
+% end
 
 for a= 1:size(data,1)
     y = data(a,:);

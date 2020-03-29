@@ -25,15 +25,8 @@ end
 
 data = D.ftraw(0);
 cfg =[];
-<<<<<<< HEAD
 data=ft_preprocessing(cfg,data);
 Ntrials = D.ntrials;
-
-=======
-
-data=ft_preprocessing(cfg,data);
-Ntrials = D.ntrials;
->>>>>>> 0a66eb1275db2620bed883136389ef38f0d0fd87
 
 cfg.method = 'mtmfft';
 cfg.output = 'pow';
