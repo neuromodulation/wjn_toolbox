@@ -13,9 +13,9 @@ allconds=[];
 mssamples = round(2*round(D.fsample/1000));
 runs = {'neg','pos'};
 T=table;
-
-for a = 1:length(chs)
-    for nrun = 1:2
+for nrun = 1:2
+    for a = 1:length(chs)
+        
         keep('T','runs','nrun','a','filename','D','spw','filtfreq','chs','alltimes','allconds','mssamples')
         data=D(chs(a),:);
         data(data==0)=nan;
@@ -28,7 +28,8 @@ for a = 1:length(chs)
         fdata= nan(size(D.time));
         fdata(good) = ft_preproc_highpassfilter(data(good),D.fsample,filtfreq(1));
         fdata(good) = ft_preproc_lowpassfilter(data(good),D.fsample,filtfreq(2));
-        [i,w,p,m,d]=wjn_raw_spw(fdata,1.96);
+        [i,w,p,m,d]=wjn_raw_spw(fdata,2.58);
+
         n=0;
         for b = 2:length(i)-1
             n=n+1;
@@ -96,6 +97,8 @@ for a = 1:length(chs)
         
         
         spw(a).i=ni';
+        spw(a).ipre=nipre';
+        spw(a).ipost=nipost';
         spw(a).Tpeak = D.time(ni)';
         spw(a).Tpre = D.time(nipre)';
         spw(a).Tpost = D.time(nipost)';
@@ -104,9 +107,10 @@ for a = 1:length(chs)
         spw(a).Trise = trise';
         spw(a).Tasymmetry = trise'./tdescent';
         
+        
         spw(a).Vmax = vtrough';
         spw(a).Vpre = vpre';
-        spw(a).Vpost = vpost';    
+        spw(a).Vpost = vpost';
         spw(a).Vasymmetry = vtrough'./nanmean([vpre',vpost'],2);
         
         spw(a).VTdescent = vdescent';
@@ -116,21 +120,44 @@ for a = 1:length(chs)
         spw(a).Pfull = pfull';
         spw(a).Ppre = ppre';
         spw(a).Ppost = ppost';
-        spw(a).Pasymmetry = pfull'./nanmean([ppre',ppost'],2);
+        spw(a).Pasymmetry = vtrough'-nanmean([vpre',vpost',vtrough'],2);
         
         spw(a).Imean=dmean';
         spw(a).Ipre = dpre';
         spw(a).Ipost = dpost';
-        
-        spw(a).cond = repmat({['SPW_' runs{nrun} '_' D.chanlabels{chs(a)}]},size(ni))';
+        %keyboard
+        %spw(a).cond = repmat({['SPW_' runs{nrun} '_' D.chanlabels{chs(a)}]},size(ni))';
+        spw(a).cond = strcat({[D.chanlabels{chs(a)} '_' runs{nrun}] },num2str([1:length(ni)]'));
         alltimes=[alltimes;D.time(ni)'];
         allconds = [allconds;spw(a).cond];
         T=[T;struct2table(spw(a))];
-    end
-    
-    D.spw.(runs{nrun}) =spw;
-    D.spw.alltimes=alltimes;
-    D.spw.allconds = allconds;
-    D.spw.T=T;
-    save(D)
+        D.spw.(runs{nrun}) =spw;
+    end  
 end
+D.spw.alltimes=alltimes;
+D.spw.allconds = allconds;
+D.spw.T=T;
+
+for a = 1:D.nchannels
+    D.spw.Vasymmetry(a,1)=nanmedian(D.spw.neg(a).Vmax)-nanmedian(D.spw.pos(a).Vmax);
+    D.spw.STDasymmetry(a,1)=nanstd(D.spw.neg(a).Vmax)-nanstd(D.spw.pos(a).Vmax);
+    D.spw.Tasymmetry(a,1)=nanmedian(D.spw.neg(a).Tfull)-nanmedian(D.spw.pos(a).Tfull)
+end
+
+save(D)
+
+figure
+subplot(2,1,1)
+plot(D.time,D(1,:))
+hold on
+scatter(D.time(D.spw.pos(1).i),D(1,D.spw.pos(1).i))
+scatter(D.time(D.spw.pos(1).ipre),D(1,D.spw.pos(1).ipre))
+scatter(D.time(D.spw.pos(1).ipost),D(1,D.spw.pos(1).ipost))
+xlim([1 10])
+subplot(2,1,2)
+plot(D.time,D(1,:))
+hold on
+scatter(D.time(D.spw.neg(1).i),D(1,D.spw.neg(1).i))
+scatter(D.time(D.spw.neg(1).ipre),D(1,D.spw.neg(1).ipre))
+scatter(D.time(D.spw.neg(1).ipost),D(1,D.spw.neg(1).ipost)')
+xlim([1 10])
