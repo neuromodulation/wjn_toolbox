@@ -147,6 +147,30 @@ for c=1:length(data.label)
     end
 end
 
+cfg3 = cfg1;
+cfg3.method = 'wpli_debiased';
+
+shift=randi(Ntrials,[1,Ntrials]);
+swpli=coh;
+scoh.cohspctrm=zeros(size(scoh.cohspctrm));
+for c=1:length(data.label)
+    sdata=data;
+    tr = data.trial(shift);
+    for nt =1:numel(tr)
+    sdata.trial{nt}(c,:)=tr{nt}(c,:);
+    end
+    cfg.channelcmb = {data.label{c}, 'all'};
+    inp = ft_freqanalysis(cfg, sdata);
+    sscoh = ft_connectivityanalysis(cfg1, inp);
+    for i=1:size(sscoh.labelcmb, 1)
+        ind=[intersect(strmatch(sscoh.labelcmb(i,1),scoh.labelcmb(:,1),'exact'), ...
+            strmatch(sscoh.labelcmb(i,2),scoh.labelcmb(:,2),'exact'))...
+            intersect(strmatch(sscoh.labelcmb(i,1),scoh.labelcmb(:,2),'exact'), ...
+            strmatch(sscoh.labelcmb(i,2),scoh.labelcmb(:,1),'exact'))];
+        scoh.cohspctrm(ind, :)=sscoh.cohspctrm(i, :);
+    end
+end
+
 
 
 for a = 1:size(coh.cohspctrm,1)

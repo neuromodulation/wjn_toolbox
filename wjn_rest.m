@@ -25,7 +25,6 @@ end
 
 data = D.ftraw(0);
 cfg =[];
-
 data=ft_preprocessing(cfg,data);
 Ntrials = D.ntrials;
 
