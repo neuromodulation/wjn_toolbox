@@ -42,9 +42,11 @@ inp = ft_freqanalysis(cfg,data);
 pow = inp.powspctrm;
 pow(:,:,wjn_sc(inp.freq,normfreq(1,2)):wjn_sc(inp.freq,normfreq(2,1))) = 0;
 mpow = squeeze(nanmean(pow,1));
-% if size(mpow,1)>size(mpow,2)
-%     mpow = mpow';
-% end
+
+if min(size(mpow))==1
+    mpow=mpow';
+end
+
 sump = nansum(mpow(:,searchclosest(inp.freq,normfreq(1,1)):searchclosest(inp.freq,normfreq(2,2))),2);
 stdp = nanstd(mpow(:,searchclosest(inp.freq,normfreq(1,1)):searchclosest(inp.freq,normfreq(2,2))),[],2);
 logfit = fftlogfitter(inp.freq',mpow)';
@@ -245,7 +247,8 @@ end
 
     save(fnsave,'COH');
 
-  
+D.COH=COH;
+save(D)
 if exist('Ddelete','var')
     Ddelete.delete();
 end
