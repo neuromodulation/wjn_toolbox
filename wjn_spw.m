@@ -138,10 +138,11 @@ D.spw.alltimes=alltimes;
 D.spw.allconds = allconds;
 D.spw.T=T;
 
+%Pfull, Tfull, 
 for a = 1:D.nchannels
     D.spw.Vasymmetry(a,1)=nanmedian(D.spw.neg(a).Vmax)-nanmedian(D.spw.pos(a).Vmax);
     D.spw.STDasymmetry(a,1)=nanstd(D.spw.neg(a).Vmax)-nanstd(D.spw.pos(a).Vmax);
-    D.spw.Tasymmetry(a,1)=nanmedian(D.spw.neg(a).Tfull)-nanmedian(D.spw.pos(a).Tfull)
+    D.spw.Tasymmetry(a,1)=nanmedian(D.spw.neg(a).Tfull)-nanmedian(D.spw.pos(a).Tfull);
 end
 
 save(D)
