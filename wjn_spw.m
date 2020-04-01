@@ -27,7 +27,7 @@ for nrun = 1:2
             data(good) = zscore(data(good));
         end
          
-        [i,w,p,m,d]=wjn_raw_spw(data,1.96);
+        [i,w,p,m,d]=wjn_raw_spw(data,1);
         irm= [find(i(D.time(i)<1)),find(D.time(i)>(D.time(D.nsamples)-1))];
         i(irm)=[];w(irm)=[];p(irm)=[];d(irm)=[];
         n=0;
