@@ -14,6 +14,6 @@ for a = 1:size(data,1)
     p(a)=plot(time,wjn_zscore(data(a,:))./10+a);
     hold on
 end
-set(gca,'YTick',[1:size(data,1)],'YTickLabel',chanlabels,'YTickLabelRotation',45);
+set(gca,'YTick',[1:size(data,1)],'YTickLabel',strrep(chanlabels,'_',' '),'YTickLabelRotation',45);
 xlim([time(1) time(end)]);
 ylim([0 length(chanlabels)+1]);

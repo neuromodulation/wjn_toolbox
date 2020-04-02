@@ -1,5 +1,8 @@
 function D=wjn_remove_bad_time_segments(filename,segments,mode)
 
+if ~exist('mode','var')
+    mode = 'remove';
+end
 D=wjn_sl(filename);
 
 if D.ntrials > 1

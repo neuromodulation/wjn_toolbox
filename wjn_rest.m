@@ -1,6 +1,6 @@
 function COH = wjn_rest(filename,granger_analysis,cfc_analysis,flow,fhigh)
 
-normfreq = [7 47; 53 97];
+normfreq = [5 45; 55 95];
 
 if ~exist('granger_analysis','var')
     granger_analysis=0;

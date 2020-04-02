@@ -1,11 +1,18 @@
-function [D,alltimes,allconds]=wjn_spw(filename)
+function [D,alltimes,allconds]=wjn_spw(filename,prominence,save_to_D)
 
+if ~exist('prominence')
+    prominence = 1.96;
+end
+
+if ~exist('save_to_D','var')
+    save_to_D=1;
+end
 
 D=spm_eeg_load(filename);
 
 
 spw=[];
-chs = unique([ci({'EEG','LFP'},D.chantype) ci({'EEG','LFP'},D.chanlabels)]);
+chs = 1:D.nchannels;
 alltimes=[];
 allconds=[];
 mssamples = round(2*round(D.fsample/1000));
@@ -14,10 +21,11 @@ T=table;
 if isfield(D,'spw')
     D=rmfield(D,'spw');
 end
+iev = D.indsample(0.125);
 for nrun = 1:2
     for a = 1:length(chs)
         
-        keep('T','runs','nrun','a','filename','D','spw','filtfreq','chs','alltimes','allconds','mssamples')
+        keep('iev','save_to_D','prominence','T','runs','nrun','a','filename','D','spw','filtfreq','chs','alltimes','allconds','mssamples')
         data=D(chs(a),:);
         data(data==0)=nan;
         good = ~isnan(data);
@@ -27,7 +35,7 @@ for nrun = 1:2
             data(good) = zscore(data(good));
         end
          
-        [i,w,p,m,d]=wjn_raw_spw(data,1.96);
+        [i,w,p,m,d]=wjn_raw_spw(data,prominence);
         irm= [find(i(D.time(i)<1)),find(D.time(i)>(D.time(D.nsamples)-1))];
         i(irm)=[];w(irm)=[];p(irm)=[];d(irm)=[];
         n=0;
@@ -70,7 +78,7 @@ for nrun = 1:2
             ppre(n) = -minn-vtrough(n);
             vdescent(n) = ppre(n)/tdescent(n);
             nipre(n) = cin;
-            
+         
             
             nip = cci+1:cci+cclimp;
             [fmip,fip]=findpeaks(-data(nip),'Npeaks',1);
@@ -89,13 +97,14 @@ for nrun = 1:2
             pfull(n) = ppre(n)+ppost(n);
             tfull(n) = tdescent(n)+trise(n);
             dmean(n) = (dpre(n)+dpost(n))/2;
+            wv(n,:) = data(cci-iev-1:cci+iev);
             
             if ismember(n,1000:1000:1000000)
-                disp(['N=' num2str(n) '/' num2str(length(i)-2) ' CH=' num2str(a) '/' num2str(length(chs))])
+                disp(['SPW N=' num2str(n) '/' num2str(length(i)-2) ' CH=' num2str(a) '/' num2str(length(chs))])
             end
         end
         
-        
+        spw(a).wv=wv;
         spw(a).i=ni';
         spw(a).ipre=nipre';
         spw(a).ipost=nipost';
@@ -126,15 +135,16 @@ for nrun = 1:2
         spw(a).Ipre = dpre';
         spw(a).Ipost = dpost';
         %keyboard
-        %spw(a).cond = repmat({['SPW_' runs{nrun} '_' D.chanlabels{chs(a)}]},size(ni))';
-        spw(a).cond = strcat({[D.chanlabels{chs(a)} '_' runs{nrun}] },num2str([1:length(ni)]'));
-        D.spw.(runs{nrun}) =spw;
+        spw(a).cond = repmat({['SPW_' runs{nrun} '_' D.chanlabels{chs(a)}]},size(ni))';
+        spw(a).prec_cond = strcat({[D.chanlabels{chs(a)} '_' runs{nrun}] },num2str([1:length(ni)]'));
+        
     end  
+    D.spw.(runs{nrun}) =spw;
 end
 
 for a = 1:D.nchannels
-    vasym = nanmean(D.spw.neg(a).Vmax)-nanmean(D.spw.pos(a).Vmax);
-    if vasym>0
+    vasym = nanmean(D.spw.pos(a).Vmax)-nanmean(D.spw.neg(a).Vmax);
+    if vasym<0
         D(a,:,:)=-1.*D(a,:,:);
         pos = D.spw.neg(a);
         neg = D.spw.pos(a);
@@ -146,16 +156,20 @@ for a = 1:D.nchannels
     else
         D.spw.inverted(a)=0;
     end
-    
-    D.spw.Vasymmetry(a,1)=nanmean(D.spw.neg(a).Vmax)-nanmean(D.spw.pos(a).Vmax);
-    D.spw.Pasymmetry(a,1)=nanmean(D.spw.neg(a).Pfull)-nanmean(D.spw.pos(a).Pfull);
-    D.spw.STDasymmetry(a,1)=nanstd(D.spw.neg(a).Pfull)-nanstd(D.spw.pos(a).Pfull);
-    D.spw.Tasymmetry(a,1)=nanmean(D.spw.neg(a).Tfull)-nanmean(D.spw.pos(a).Tfull);
-    D.spw.Tfull(a,:) = [nanmean(D.spw.neg(a).Tfull) nanmean(D.spw.pos(a).Tfull)];
-    D.spw.Tdescent(a,:) = [nanmean(D.spw.neg(a).Tdescent) nanmean(D.spw.pos(a).Tdescent)];
-    D.spw.Trise(a,:) = [nanmean(D.spw.neg(a).Trise) nanmean(D.spw.pos(a).Trise)];
-    D.spw.Pfull(a,:) = [nanmean(D.spw.neg(a).Pfull) nanmean(D.spw.pos(a).Pfull)];
-    D.spw.Imean(a,:) = [nanmean(D.spw.neg(a).Imean) nanmean(D.spw.pos(a).Imean)];
+    D.spw.results.N(a,:) = [numel(D.spw.neg(a).i) numel(D.spw.pos(a).i)];
+    D.spw.results.Nr(a,:) = D.spw.results.N(a,:)./max(D.time);
+    D.spw.results.Vasymmetry(a,1)=nanmean(D.spw.pos(a).Vmax)-nanmean(D.spw.neg(a).Vmax);
+    D.spw.results.Pasymmetry(a,1)=nanmean(D.spw.neg(a).Pfull)-nanmean(D.spw.pos(a).Pfull);
+    D.spw.results.STDasymmetry(a,1)=nanstd(D.spw.neg(a).Pfull)-nanstd(D.spw.pos(a).Pfull);
+    D.spw.results.Tasymmetry(a,1)=nanmean(D.spw.pos(a).Tfull)-nanmean(D.spw.neg(a).Tfull);
+    D.spw.results.Tfull(a,:) = [nanmean(D.spw.neg(a).Tfull) nanmean(D.spw.pos(a).Tfull)];
+    D.spw.results.Tdescent(a,:) = [nanmean(D.spw.neg(a).Tdescent) nanmean(D.spw.pos(a).Tdescent)];
+    D.spw.results.Trise(a,:) = [nanmean(D.spw.neg(a).Trise) nanmean(D.spw.pos(a).Trise)];
+    D.spw.results.Pfull(a,:) = [nanmean(D.spw.neg(a).Pfull) nanmean(D.spw.pos(a).Pfull)];
+    D.spw.results.Imean(a,:) = [nanmean(D.spw.neg(a).Imean) nanmean(D.spw.pos(a).Imean)];
+    D.spw.wvn(a,:) = -nanmean(D.spw.neg(a).wv);
+    D.spw.wvp(a,:) = nanmean(D.spw.pos(a).wv);
+    D.spw.wvt = linspace(-125,125,size(wv,2));
     alltimes=[alltimes;D.time(D.spw.neg(a).i)';D.time(D.spw.pos(a).i)'];
     allconds = [allconds;D.spw.neg(a).cond;D.spw.pos(a).cond];
     T=[T;struct2table(D.spw.neg(a));struct2table(D.spw.pos(a))];
@@ -163,21 +177,25 @@ end
 D.spw.alltimes=alltimes;
 D.spw.allconds = allconds;
 D.spw.T=T;
-
-save(D)
-
-figure
-subplot(2,1,1)
-plot(D.time,D(1,:))
-hold on
-scatter(D.time(D.spw.pos(1).i),D(1,D.spw.pos(1).i))
-scatter(D.time(D.spw.pos(1).ipre),D(1,D.spw.pos(1).ipre))
-scatter(D.time(D.spw.pos(1).ipost),D(1,D.spw.pos(1).ipost))
-xlim([1 10])
-subplot(2,1,2)
-plot(D.time,D(1,:))
-hold on
-scatter(D.time(D.spw.neg(1).i),D(1,D.spw.neg(1).i))
-scatter(D.time(D.spw.neg(1).ipre),D(1,D.spw.neg(1).ipre))
-scatter(D.time(D.spw.neg(1).ipost),D(1,D.spw.neg(1).ipost)')
-xlim([1 10])
+if save_to_D
+    save(D)
+end
+spw = D.spw;
+save(fullfile(D.path,['spw_' strrep(num2str(prominence),'.','-') D.fname]),'spw','T','-v7.3')
+% 
+% 
+% figure
+% subplot(2,1,1)
+% plot(D.time,D(1,:))
+% hold on
+% scatter(D.time(D.spw.pos(1).i),D(1,D.spw.pos(1).i))
+% scatter(D.time(D.spw.pos(1).ipre),D(1,D.spw.pos(1).ipre))
+% scatter(D.time(D.spw.pos(1).ipost),D(1,D.spw.pos(1).ipost))
+% xlim([1 10])
+% subplot(2,1,2)
+% plot(D.time,D(1,:))
+% hold on
+% scatter(D.time(D.spw.neg(1).i),D(1,D.spw.neg(1).i))
+% scatter(D.time(D.spw.neg(1).ipre),D(1,D.spw.neg(1).ipre))
+% scatter(D.time(D.spw.neg(1).ipost),D(1,D.spw.neg(1).ipost)')
+% xlim([1 10])
