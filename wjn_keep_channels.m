@@ -1,5 +1,8 @@
-function Dn = wjn_keep_channels(filename,channels)
+function Dn = wjn_keep_channels(filename,channels,exact)
 
+if ~exist('exact','var')
+    exact = 2;
+end
 
 D=spm_eeg_load(filename);
 
@@ -11,7 +14,7 @@ obc = D.badchannels;
 
 bc = 1:D.nchannels;
 
-bc(ci(channels,D.chanlabels,2))=[];
+bc(ci(channels,D.chanlabels,exact))=[];
 
 D=badchannels(D,bc,1);
 
