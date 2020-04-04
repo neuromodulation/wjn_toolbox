@@ -220,7 +220,7 @@ if stage >= 2
     end
     keyboard
     for a = 1:length(D.spw.avg.conditions)
-        [peaks(:,a),delays(:,a)]=wjn_plot_spw(D.spw.avg.time,D.spw.avg.tvalue(:,:,a),D.chanlabels,printit,1);
+        [peaks(:,a),delays(:,a)]=wjn_plot_spw(D.spw.avg.time,D.spw.avg.tvalue(:,:,a),D.chanlabels,printit,2);
        if printit
         title(strrep(D.spw.avg.conditions{a},'_',' '))
         figone(30,10)

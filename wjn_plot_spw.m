@@ -1,4 +1,4 @@
-function [mm,ti,p]=wjn_plot_spw(time,data,chanlabels,plotit)
+function [mm,ti,p]=wjn_plot_spw(time,data,chanlabels,plotit,thresh)
 
 if ~exist('plotit','var')
     plotit=1;
@@ -19,7 +19,13 @@ for a = 1:size(data,1)
     zdata = wjn_zscore(data(a,:));
     [mp,ip]=findpeaks(zdata);
     [mn,in]=findpeaks(-zdata);
-    p(a)=plot(time,zdata./10+a);
+    irmp = mp<thresh;
+    mp(irmp)=[];ip(irmp)=[];
+    irmn = mn<thresh;
+    mn(irmn)=[];in(irmn)=[];
+    if plotit
+        p(a)=plot(time,zdata./10+a);
+    end
     i = [in ip];
     m = [-mn mp];
     [~,mi]=max(abs(m));

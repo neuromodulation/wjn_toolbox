@@ -125,7 +125,7 @@ for nrun = 1:2
         
       
         
-     
+        spw(a).wv=wv(1:n);
         spw(a).i=ni(1:n)';
         spw(a).ipre=nipre(1:n)';
         spw(a).ipost=nipost(1:n)';
@@ -204,6 +204,10 @@ for a = 1:D.nchannels
     D.spw.results.Vsharpnessratio(a,:) = log(nanmax([D.spw.results.Vsharpness(a,1)./D.spw.results.Vsharpness(a,2),D.spw.results.Vsharpness(a,1)./D.spw.results.Vsharpness(a,2)]));
     D.spw.results.Vsloperatio(a,:) = [nanmean(D.spw.neg(a).Vsloperatio) nanmean(D.spw.pos(a).Vsloperatio)]; 
     
+    D.spw.avg.wvn(a,:) = -nanmean(D.spw.neg(a).wv);
+    D.spw.avg.wvp(a,:) = nanmean(D.spw.pos(a).wv);
+    D.spw.neg = rmfield(D.spw.neg,'wv');
+    D.spw.pos = rmfield(D.spw.pos,'wv');
     alltimes=[alltimes;D.time(D.spw.neg(a).i)';D.time(D.spw.pos(a).i)'];
     allconds = [allconds;D.spw.neg(a).cond;D.spw.pos(a).cond];
     
