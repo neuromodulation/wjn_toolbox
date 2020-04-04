@@ -8,9 +8,6 @@ D=spm_eeg_load(filename);
 
 chans = 1:D.nchannels;
 
-iother = D.indchantype('Other');
-chans(iother)=[];
-
 franges = [lhz:lhz:D.fsample/2];
 
 

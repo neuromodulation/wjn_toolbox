@@ -1,4 +1,11 @@
-function D = wjn_reconall(filename,stage)
+function D = wjn_reconall(filename,printit,stage)
+
+if ~exist('stage','var')
+    stage = 4;
+end
+if ~exist('printit','var')
+    printit=1;
+end
 
 normfreq = [5 45; 55 95];
 D=spm_eeg_load(filename);
@@ -16,38 +23,50 @@ fpath = fullfile(D.path,['reconall_' fname]);
 mkdir(fpath)
 
 
-Dc = D;
-Dd = wjn_downsample(Dc.fullfile,60);
+if printit
+raw=D.ftraw(0);
+cfg=[];
+cfg.resamplefs =60   ; 
+cfg.detrend = 'yes';      
+cfg.demean  ='yes';    
+raw=ft_resampledata(cfg,raw);
+disp('Print raw time series.')
 figure('visible','off')
-wjn_plot_raw_signals(Dd.time,Dd(:,:),strrep(Dd.chanlabels,'_',' '))
-xlabel('Time [s]')
-figone(40,40)
-savefig(fullfile(fpath,['raw_' fname '.fig']))
-close
-Dd.delete()
-figure('visible','off')
-wjn_plot_raw_signals(Dc.time,Dc(:,:),strrep(Dc.chanlabels,'_',' '))
+wjn_plot_raw_signals(raw.time{1},raw.trial{1},strrep(D.chanlabels,'_',' '));
 xlabel('Time [s]')
 figone(40,40)
 myprint(fullfile(fpath,['raw_' fname]));
-ix = randi(round(Dc.time(end)-10)-1);
-xlim([ix ix+10])
-myprint(fullfile(fpath,['raw_zoom_' fname]));
+savefig(fullfile(fpath,['raw_' fname '.fig']))
 close
 
-De=wjn_epoch(D.fullfile,2);
-Ddelete = De;
+ix = randi(round(D.time(end)-10)-1);
+figure('visible','off')
+wjn_plot_raw_signals(D.time(D.indsample(ix):D.indsample(ix+10)),D(:,D.indsample(ix):D.indsample(ix+10)),strrep(D.chanlabels,'_',' '));
+xlabel('Time [s]')
+figone(40,40)
+myprint(fullfile(fpath,['raw_zoom_' fname]));
+close
+end
 
-D=De;
 data = D.ftraw(0);
-cfg =[];
-data=ft_preprocessing(cfg,data);
-Ntrials = D.ntrials;
+cfg            = []; 
+cfg.continuous = 'yes';
+cfg.lpfilter='yes';
+cfg.lpfreq = D.fsample/2.5;
+cfg.padding = 2;
+data           = ft_preprocessing(cfg,data);
+
+cfg         = [];
+cfg.length  = 3;
+cfg.overlap = 0.5;
+data        = ft_redefinetrial(cfg, data);
+
+Ntrials = length(data.trial);
 
 cfg.method = 'mtmfft';
 cfg.output = 'pow';
 cfg.taper = 'dpss';
-cfg.tapsmofrq=2;
+cfg.tapsmofrq=5;
 cfg.keeptrials = 'yes';
 cfg.keeptapers='no';
 cfg.pad = 'nextpow2';
@@ -113,53 +132,36 @@ end
 
 COH.rtf = rtf;
 
+if printit
+disp('Print power spectra.')
 figure('visible','off')
+subplot(1,2,1)
 plot(COH.f,COH.rpow)
 legend(strrep(COH.channels,'_',' '))
 xlim([1 COH.f(end)])
 ylim([0 10])
-ylabel('PSD [%]')
+ylabel('PSD')
 xlabel('Frequency [Hz]')
-figone(20,26)
-savefig(fullfile(fpath,['rpow_' fname '.fig']))
+subplot(1,2,2)
+plot(COH.f,COH.logfit)
+legend(strrep(COH.channels,'_',' '))
+xlim([1 COH.f(end)])
+ylabel('PSD')
+xlabel('Frequency [Hz]')
+figone(20,52)
+savefig(fullfile(fpath,['pow_' fname '.fig']))
 xlim([3 45])
 myprint(fullfile(fpath,['rpow_' fname]))
 close
-Dc.COH = COH;
-save(Dc)
-
-figint = 4;
-nfig = 1:figint:D.nchannels;
-
-figure('visible','off')
-for a = nfig
-    for b = 0:figint-1
-        if a+b <= D.nchannels
-            subplot(figint,1,b+1)
-            imagesc(COH.time,COH.f,log(squeeze(COH.pow(a+b,:,:))))
-            axis xy
-            TFaxes
-            title(strrep(COH.channels{a+b},'_',' '))
-            ylim([3 45])
-            figone(30,40)
-        end
-    end
-    myprint(fullfile(fpath,['TF_' num2str(a) '_' fname]))
-end
-close
-
-save(fullfile(fpath,['POW_' fname]),'COH','-v7.3');
-if stage <= 1
-    D=Dc;
 end
 if stage >= 2
     
-    D = wjn_spw(Dc,1.96,1);
+    D = wjn_spw(D,1.96,0);
     spw = D.spw;
-    
+    if printit
     figint = 4;
     nfig = 1:figint:D.nchannels;
-    
+    disp('Print exemplar waveform identification.')
     figure('visible','off')
     for a = nfig
         for b = 0:figint-1
@@ -184,14 +186,14 @@ if stage >= 2
         myprint(fullfile(fpath,['spw_raw_' num2str(a) '_' fname]))
     end
     close
-    
+    disp('Print average waveform shape.')
     figure('visible','off')
-    wjn_plot_spw(spw.wvt,spw.wvn,D.chanlabels)
+    wjn_plot_spw(spw.avg.time,spw.avg.wvn,D.chanlabels);
     figone(40,20)
     myprint(fullfile(fpath,['spw_wv_' fname]))
     close
     
-    
+    disp('Print waveform characteristics.')
     ffs = fieldnames(spw.results);
     figure('visible','off')
     for a = 1:length(ffs)
@@ -207,26 +209,69 @@ if stage >= 2
         title(ffs{a})
     end
     figone(40,40)
-    myprint(fullfile(fpath,['SPW_results_' fname]))
+    myprint(fullfile(fpath,['SPW_results_' fname(1:end-4)]))
     close
-    spw.channels = D.chanlabels;
-    save(fullfile(fpath,['SPW_' fname]),'spw','-v7.3');
+    end
+    R=struct2table(D.spw.results);
+    R.channels=D.chanlabels';
+    R=R(:,[end 1 3:end-1]);
+    disp('Write waveform shape result table.')
+    writetable(R,fullfile(fpath,['spw_results_' fname(1:end-4) '.csv']))
+    if printit
+    disp('Print ERPs.')
+    figure('visible','off')
+    end
+    for a = 1:length(D.spw.avg.conditions)
+        [peaks(:,a),delays(:,a)]=wjn_plot_spw(D.spw.avg.time,D.spw.avg.data(:,:,a),D.chanlabels,printit);
+       if printit
+        title(strrep(D.spw.avg.conditions{a},'_',' '))
+        figone(30,10)
+        hold off
+        myprint(fullfile(fpath,['SPW_ERP_' D.spw.avg.conditions{a} '_' fname]))
+       end
+    end
+    close
+    
+    if printit
+    disp('Print delay and peaks.')
+    figure('visible','off')
+    subplot(1,2,1)
+    imagesc(delays')
+    cb=colorbar;ylabel(cb,'Delay [ms]')
+    set(gca,'XTick',1:size(delays,1),'XTickLabel',strrep(D.chanlabels,'_',' '),'XTickLabelRotation',90)
+    set(gca,'YTick',1:size(delays,2),'YTickLabel',strrep(D.spw.avg.conditions,'_',' '))
+    subplot(1,2,2)
+    imagesc(peaks')
+    cb=colorbar;ylabel(cb,'Z')
+    set(gca,'XTick',1:size(peaks,1),'XTickLabel',strrep(D.chanlabels,'_',' '),'XTickLabelRotation',90)
+    set(gca,'YTick',1:size(peaks,2),'YTickLabel',strrep(D.spw.avg.conditions,'_',' '))
+    figone(35,55)
+    myprint(fullfile(fpath,['SPW_ERP_results_' D.spw.avg.conditions{a} '_' fname]))
+    close 
+    end
+    Rd=table('RowNames',D.chanlabels);
+    Rp=Rd;
+    for a=1:length(D.spw.avg.conditions)
+        Rd.(D.spw.avg.conditions{a})=delays(:,a);
+        Rp.(D.spw.avg.conditions{a})=peaks(:,a);
+    end
+    writetable(Rd,fullfile(fpath,['SPW_delays_' fname(1:end-4) '.csv']))
+    writetable(Rp,fullfile(fpath,['SPW_peaks' fname(1:end-4) '.csv']))
 end
 
 if stage > 2 && D.nchannels>1
     
-    D=De;
-    data=D.ftraw(0);
+    disp('Compute connectivity.')
     cfg =[];
     cfg.method = 'mtmfft';
     cfg.output = 'powandcsd';
     cfg.taper = 'dpss';
-    cfg.tapsmofrq=2;
+    cfg.tapsmofrq=10;
     cfg.output ='powandcsd';
     cfg.keeptrials = 'yes';
     cfg.keeptapers='no';
     cfg.pad = 'nextpow2';
-    cfg.padding = 2;
+    cfg.padding = 0.5;
     inp = ft_freqanalysis(cfg,data);
     
     cfg1 = [];
@@ -235,75 +280,31 @@ if stage > 2 && D.nchannels>1
     cfg2 = cfg1;
     cfg2.complex = 'imag';
     icoh = ft_connectivityanalysis(cfg2, inp);
-    
-    % keyboard
-    Ntrials = D.ntrials;
-    shift=randi(Ntrials,1,Ntrials);
-    scoh=coh;
-    scoh.cohspctrm=zeros(size(scoh.cohspctrm));
-    for c=1:length(data.label)
-        sdata=data;
-        tr = data.trial(shift);
-        for nt =1:numel(tr)
-            sdata.trial{nt}(c,:)=tr{nt}(c,:);
-        end
-        cfg.channelcmb = {data.label{c}, 'all'};
-        inp = ft_freqanalysis(cfg, sdata);
-        sscoh = ft_connectivityanalysis(cfg1, inp);
-        for i=1:size(sscoh.labelcmb, 1)
-            ind=[intersect(strmatch(sscoh.labelcmb(i,1),scoh.labelcmb(:,1),'exact'), ...
-                strmatch(sscoh.labelcmb(i,2),scoh.labelcmb(:,2),'exact'))...
-                intersect(strmatch(sscoh.labelcmb(i,1),scoh.labelcmb(:,2),'exact'), ...
-                strmatch(sscoh.labelcmb(i,2),scoh.labelcmb(:,1),'exact'))];
-            scoh.cohspctrm(ind, :)=sscoh.cohspctrm(i, :);
-        end
-    end
-    clear sdata sicoh ssicoh
-    sicoh=scoh;
-    sicoh.cohspctrm=zeros(size(scoh.cohspctrm));
-    for c=1:length(data.label)
-        sdata=data;
-        tr = data.trial(shift);
-        for nt =1:numel(tr)
-            sdata.trial{nt}(c,:)=tr{nt}(c,:);
-        end
-        cfg.channelcmb = {data.label{c}, 'all'};
-        inp = ft_freqanalysis(cfg, sdata);
-        ssicoh = ft_connectivityanalysis(cfg2, inp);
-        for i=1:size(ssicoh.labelcmb, 1)
-            ind=[intersect(strmatch(ssicoh.labelcmb(i,1),sicoh.labelcmb(:,1),'exact'), ...
-                strmatch(ssicoh.labelcmb(i,2),sicoh.labelcmb(:,2),'exact'))...
-                intersect(strmatch(ssicoh.labelcmb(i,1),sicoh.labelcmb(:,2),'exact'), ...
-                strmatch(ssicoh.labelcmb(i,2),sicoh.labelcmb(:,1),'exact'))];
-            sicoh.cohspctrm(ind, :)=ssicoh.cohspctrm(i, :);
-        end
-    end
-    
+    cfg3=[];
+    cfg3.method = 'wpli_debiased';
+    wpli = ft_connectivityanalysis(cfg3, inp);
+    cfg4=[];
+    cfg4.method = 'plv';
+    plv = ft_connectivityanalysis(cfg4, inp);
     
     
     for a = 1:size(coh.cohspctrm,1)
         cohZ(a,:) = 0.5*log((1+coh.cohspctrm(a,:))./(1-coh.cohspctrm(a,:)));
-        seZ(a,:) = 0.5*log((1+scoh.cohspctrm(a,:))./(1-scoh.cohspctrm(a,:)));
-        icohZ(a,:) = 0.5*log((1+abs(icoh.cohspctrm(a,:)))./(1-abs(icoh.cohspctrm(a,:))));
-        sicohZ(a,:) = 0.5*log((1+abs(sicoh.cohspctrm(a,:)))./(1-abs(sicoh.cohspctrm(a,:))));
+        icohZ(a,:) = 0.5*log((1+abs(icoh.cohspctrm(a,:)))./(1-abs(icoh.cohspctrm(a,:))));       
     end
     
     
     
     
-    
+    COH.wpli=wpli.wpli_debiasedspctrm;
+    COH.plv = plv.plvspctrm;
     COH.coh = coh.cohspctrm;
     COH.icoh = abs(icoh.cohspctrm);
     COH.icohZ = icohZ;
-    COH.sicohZ = sicohZ;
     COH.cohZ = cohZ;
-    COH.scoh = scoh.cohspctrm;
-    COH.scohZ = seZ;
-    COH.sicoh = abs(sicoh.cohspctrm);
-    
     COH.chancomb = coh.labelcmb;
-    
-    
+    if printit
+    disp('Print icoh.')
     figure('visible','off')
     for a = 1:D.nchannels
         subplot(1,D.nchannels,a)
@@ -332,81 +333,44 @@ if stage > 2 && D.nchannels>1
         xlim([3 45])
         title(strrep(D.chanlabels{a},'_',' '))
         subplot(1,3,3)
-        wjn_plot_raw_signals(COH.f,COH.icoh(i,:),D.chanlabels(setdiff(1:D.nchannels,a)))
+        wjn_plot_raw_signals(COH.f,COH.icoh(i,:),D.chanlabels(setdiff(1:D.nchannels,a)));
         xlim([3 45])
         xlabel('Frequency [Hz]')
         myprint(fullfile(fpath,['iCOH_' D.chanlabels{a} '_' fname]))
         hold off
     end
     close
-    
-     figure('visible','off')
-    for a = 1:D.nchannels
-        subplot(1,D.nchannels,a)
-        i = wjn_cohfinder(D.chanlabels{a},D.chanlabels(setdiff(1:D.nchannels,a)),COH.chancomb,0);
-        p=plot(COH.f,COH.coh(i,:));
-        ylabel('Coherence')
-        xlabel('Frequency [Hz]')
-        hold on
-        legend(p,strrep(D.chanlabels(setdiff(1:D.nchannels,a)),'_',' '),'Location','SouthOutside')
-        xlim([3 45])
-        title(strrep(D.chanlabels{a},'_',' '))
     end
-    figone(40,60)
-    savefig(fullfile(fpath,['COH_all_' fname '.fig']))
-    close
-    
-    figure('visible','off')
-    figone(20,30)
-    for a = 1:D.nchannels
-        subplot(1,3,1:2)
-        i = wjn_cohfinder(D.chanlabels{a},D.chanlabels(setdiff(1:D.nchannels,a)),COH.chancomb,0);
-        p=plot(COH.f,COH.coh(i,:));
-        ylabel('Coherence')
-        xlabel('Frequency [Hz]')
-        legend(p,strrep(D.chanlabels(setdiff(1:D.nchannels,a)),'_',' '),'Location','SouthOutside')
-        xlim([3 45])
-        title(strrep(D.chanlabels{a},'_',' '))
-        subplot(1,3,3)
-        wjn_plot_raw_signals(COH.f,COH.icoh(i,:),D.chanlabels(setdiff(1:D.nchannels,a)))
-        xlim([3 45])
-        xlabel('Frequency [Hz]')
-        myprint(fullfile(fpath,['COH_' D.chanlabels{a} '_' fname]))
-        hold off
-    end
-    close
-    
-    save(fullfile(fpath,['COH_' fname]),'COH','-v7.3');
+
     if stage >= 4
-        
+      
+        disp('Compute granger causality.')
         clear inp coh icoh stat
-        odata = D.ftraw(0);
-        rdata = odata(:,1:end);
+        odata = data;
+        rdata = data;
         
         for a =1:length(rdata.trial)
             rdata.trial{a} = rdata.trial{a}(:, end:-1:1);
         end
-        data = {odata, rdata};
+        bdata = {odata, rdata};
         
-        for i = 1:numel(data)
+        for i = 1:numel(bdata)
             
             cfg = [];
             cfg.output ='fourier';
             cfg.keeptrials = 'yes';
             cfg.keeptapers='yes';
             cfg.taper = 'dpss';
-            cfg.tapsmofrq=2;
+            cfg.tapsmofrq=3;
             cfg.pad = 'nextpow2';
             cfg.padding = 2;
             cfg.method          = 'mtmfft';
-            inp{i} = ft_freqanalysis(cfg, data{i});
-            %
-            cfg1 = [];
-            cfg1.method  = 'coh';
-            %           coh{i} = ft_connectivityanalysis(cfg1, inp{i});
-            
-            cfg2=cfg1;
-            cfg2.method = 'granger';
+            inp{i} = ft_freqanalysis(cfg, bdata{i});
+
+               
+     
+            cfg=[];
+            cfg.method = 'granger';
             stat{i} = ft_connectivityanalysis(cfg2, inp{i});
             
             
@@ -417,7 +381,8 @@ if stage > 2 && D.nchannels>1
         COH.rgranger = stat{2}.grangerspctrm;
         COH.rcgranger = stat{1}.grangerspctrm-stat{2}.grangerspctrm;
         COH.grangerchannelcmb = stat{1}.label;
-        
+        if printit
+        disp('Print Granger causality.')
         figure('visible','off')
         for a = 1:D.nchannels
             subplot(1,D.nchannels,a)
@@ -446,76 +411,19 @@ if stage > 2 && D.nchannels>1
             xlim([3 45])
             title(strrep(D.chanlabels{a},'_',' '))
             subplot(1,3,3)
-            wjn_plot_raw_signals(COH.f,squeeze(COH.rcgranger(a,i,:))-squeeze(COH.rcgranger(i,a,:)),D.chanlabels(setdiff(1:D.nchannels,a)))
+            wjn_plot_raw_signals(COH.f,squeeze(COH.rcgranger(a,i,:))-squeeze(COH.rcgranger(i,a,:)),D.chanlabels(setdiff(1:D.nchannels,a)));
             xlim([3 45])
             xlabel('Frequency [Hz]')
             myprint(fullfile(fpath,['GRANGER_' D.chanlabels{a} '_' fname]))
             hold off
         end
         close
-        save(fullfile(fpath,['GRANGER_' fname]),'COH','-v7.3');
+        end
+     
     end
     
 end
-
-D=Dc;
-
-
-
-
-if exist('Ddelete','var')
-    Ddelete.delete();
-end
-
-if stage == 5
-    trl = spw.alltimes;
-    conds = spw.allconds;
-    De=wjn_epoch(Dc.fullfile,[-125 125],conds,trl,'spw');
-    De=wjn_average(De.fullfile,0);
-    
-    figure('visible','off')
-    for a = 1:De.ntrials
-        
-        [peak(:,a),delays(:,a)]=wjn_plot_spw(De.time.*1000,squeeze(De(:,:,a)),De.chanlabels);
-        title(strrep(De.conditions{a},'_',' '))
-        figone(30,10)
-        hold off
-        myprint(fullfile(fpath,['SPW_ERP_' De.conditions{a} '_' fname]))
-    end
-    close
-    
-  
-    
-    figure('visible','off')
-    subplot(1,2,1)
-    imagesc(delays')
-    cb=colorbar;ylabel(cb,'Delay [ms]')
-    set(gca,'XTick',1:size(delays,1),'XTickLabel',strrep(De.chanlabels,'_',' '),'XTickLabelRotation',90)
-    set(gca,'YTick',1:size(delays,2),'YTickLabel',strrep(De.conditions,'_',' '))
-    subplot(1,2,2)
-    imagesc(peak')
-    cb=colorbar;ylabel(cb,'Z')
-    set(gca,'XTick',1:size(peak,1),'XTickLabel',strrep(De.chanlabels,'_',' '),'XTickLabelRotation',90)
-    set(gca,'YTick',1:size(peak,2),'YTickLabel',strrep(De.conditions,'_',' '))
-    figone(35,55)
-    myprint(fullfile(fpath,['SPW_ERP_results_' De.conditions{a} '_' fname]))
-    close 
-    
-    
-    spw = rmfield(spw,'T');
-    spw = rmfield(spw,'neg');
-    spw = rmfield(spw,'pos');
-    spw.avg.data = De(:,:,:);
-    spw.avg.condlist = De.conditions;
-    spw.avg.time = De.time.*1000;
-    spw.avg.peak = peak;
-    spw.avg.delays = delays;
-    save(fullfile(fpath,['SPW_ERP_' fname]),'spw','-v7.3');
-    
-end
-
-
-D=Dc;
+save(fullfile(fpath,['COH_' fname]),'COH','-v7.3');
 D.COH=COH;
 save(D)
 

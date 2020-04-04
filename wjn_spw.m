@@ -1,4 +1,4 @@
-function [D,alltimes,allconds]=wjn_spw(filename,prominence,save_to_D)
+function [D,spw]=wjn_spw(filename,prominence,save_to_D)
 
 if ~exist('prominence')
     prominence = 1.96;
@@ -21,7 +21,7 @@ T=table;
 if isfield(D,'spw')
     D=rmfield(D,'spw');
 end
-iev = D.indsample(0.125);
+iev = round(0.125*D.fsample);
 for nrun = 1:2
     for a = 1:length(chs)
         
@@ -170,9 +170,9 @@ for a = 1:D.nchannels
     D.spw.results.Trise(a,:) = [nanmean(D.spw.neg(a).Trise) nanmean(D.spw.pos(a).Trise)];
     D.spw.results.Pfull(a,:) = [nanmean(D.spw.neg(a).Pfull) nanmean(D.spw.pos(a).Pfull)];
     D.spw.results.Imean(a,:) = [nanmean(D.spw.neg(a).Imean) nanmean(D.spw.pos(a).Imean)];
-    D.spw.wvn(a,:) = -nanmean(D.spw.neg(a).wv);
-    D.spw.wvp(a,:) = nanmean(D.spw.pos(a).wv);
-    D.spw.wvt = linspace(-125,125,size(wv,2));
+    D.spw.avg.wvn(a,:) = -nanmean(D.spw.neg(a).wv);
+    D.spw.avg.wvp(a,:) = nanmean(D.spw.pos(a).wv);
+    D.spw.avg.spw = linspace(-125,125,size(wv,2));
     alltimes=[alltimes;D.time(D.spw.neg(a).i)';D.time(D.spw.pos(a).i)'];
     allconds = [allconds;D.spw.neg(a).cond;D.spw.pos(a).cond];
     T=[T;struct2table(D.spw.neg(a));struct2table(D.spw.pos(a))];
@@ -180,25 +180,61 @@ end
 D.spw.alltimes=alltimes;
 D.spw.allconds = allconds;
 D.spw.T=T;
+
+
+
+    trl = D.indsample(alltimes);
+    conds = allconds;
+    uconds = unique(allconds);
+    seg = [-iev-1:iev];
+    tspw = linspace(-125,125,length(seg))-2;
+    d=D(:,:);
+    ppwavg=ones(D.nchannels,length(seg),length(uconds));
+    spwavg=ones(D.nchannels,length(seg),length(uconds));
+    stwavg=ppwavg;
+    ttwavg=ppwavg;
+    tic
+    for a = 1:length(uconds)
+        ic=ci(uconds{a},conds,1);
+        it=trl(ic);
+    for b = 1:length(seg)
+        
+            spwavg(:,b,a)=nanmean(d(:,it+seg(b))');
+
+            [~,ppwavg(:,b,a),~,stats]=ttest(d(:,it+seg(b))');
+            stwavg(:,b,a)=stats.sd;
+            ttwavg(:,b,a)=stats.tstat;
+            
+
+    end
+    disp([num2str(a) '/' num2str(length(uconds))])
+    end
+    toc
+    
+     for a = 1:length(uconds)
+        [peaks(:,a),delays(:,a)]=wjn_plot_spw(tspw-2,spwavg(:,:,a),D.chanlabels,0);
+     end
+    
+    D.spw.avg.p = ppwavg;
+    D.spw.avg.std = stwavg;
+    D.spw.avg.tvalue=ttwavg;
+    D.spw.avg.data = spwavg;
+    D.spw.avg.conditions = uconds;
+    D.spw.avg.time = tspw;
+    D.spw.avg.peaks = peaks;
+    D.spw.avg.delays = delays; 
+    D.spw.chanlabels = D.chanlabels;
+    D.spw.fsample = D.fsample;
+    D.spw.prominence = prominence;
+
+
+   spw = D.spw;
+   save(fullfile(D.path,['spw_' strrep(num2str(prominence),'.','-') D.fname]),'spw','T','-v7.3')
+
+
 if save_to_D
     save(D)
 end
-spw = D.spw;
-save(fullfile(D.path,['spw_' strrep(num2str(prominence),'.','-') D.fname]),'spw','T','-v7.3')
-% 
-% 
-% figure
-% subplot(2,1,1)
-% plot(D.time,D(1,:))
-% hold on
-% scatter(D.time(D.spw.pos(1).i),D(1,D.spw.pos(1).i))
-% scatter(D.time(D.spw.pos(1).ipre),D(1,D.spw.pos(1).ipre))
-% scatter(D.time(D.spw.pos(1).ipost),D(1,D.spw.pos(1).ipost))
-% xlim([1 10])
-% subplot(2,1,2)
-% plot(D.time,D(1,:))
-% hold on
-% scatter(D.time(D.spw.neg(1).i),D(1,D.spw.neg(1).i))
-% scatter(D.time(D.spw.neg(1).ipre),D(1,D.spw.neg(1).ipre))
-% scatter(D.time(D.spw.neg(1).ipost),D(1,D.spw.neg(1).ipost)')
-% xlim([1 10])
+
+
+
