@@ -8,7 +8,7 @@ if ~exist('printit','var')
 end
 
 normfreq = [5 45; 55 95];
-D=spm_eeg_load(filename);
+
 iempty = D.chanlabels(find(sum(D(:,:)')==0));
 if ~isempty(iempty)
     disp('REMOVING EMPTY CHANNELS')
@@ -23,7 +23,7 @@ if ~strcmp(D.type,'continuous')
 end
 
 fname =  D.fname;fname = fname(1:end-4);
-fpath = fullfile(D.path,['reconall_' fname]);
+fpath = fullfile(D.path,['recon_all_' fname]);
 mkdir(fpath)
 
 
@@ -99,7 +99,7 @@ for a=1:size(mpow,1)
     end
 end
 
-keyboard
+
 fname = D.fname;
 COH = [];
 COH.name = fname(1:length(fname)-4);
@@ -123,6 +123,61 @@ COH.srpow = srpow;
 COH.logfit = logfit;
 COH.pow = permute(pow,[2,3,1]);
 COH.mpow = mpow;
+
+freqbands  = {'all','lowfreq','theta','alpha','beta','low_beta','high_beta'};
+bandfreqs = [3 35;4 12;4 8;8 12;13 35;13 20;20 35];
+measures = {'mpow','rpow','logfit'};
+
+close all
+for a = 1:length(COH.channels)
+    for b = 1:length(measures)
+        for c = 1:length(freqbands)
+            COH.bandaverage.data(a,b,c) = nanmean(COH.(measures{b})(b,wjn_sc(COH.f,bandfreqs(c,1)):wjn_sc(COH.f,bandfreqs(c,2))));
+            COH.bandaverage.freqbands = freqbands;
+            COH.bandaverage.bandfreqs = bandfreqs;
+            COH.bandaverage.measures = measures;
+            COH.bandaverage.channels = COH.channels;
+            COH.bandaverage.(measures{b})(a,c) = COH.bandaverage.data(a,b,c);
+        end
+    end
+end
+
+keyboard    
+%         COH.bandaverage.freqband.all = [3 35];
+%         [m,i,w]=findpeaks(cpow,'Minpeakdistance',wjn_sc(COH.f,3)-wjn_sc(COH.f,1));
+%            irm=COH.f(i)<3;
+%             i(irm)=[];m(irm)=[];w(irm)=[];
+%         if ~isempty(m)
+%             [mm,mi]=nanmax(m);
+%             COH.peaks.(measures{b}).('freqband').all = [3 35];
+%             COH.peaks.(measures{b}).('freq').all{c} = COH.f(i);
+%             COH.peaks.(measures{b}).('amp').all{c} = m;
+%             COH.peaks.(measures{b}).('width').all{c} = COH.f(round(w));
+%             COH.peaks.(measures{b}).('maxfreq').all(c,1) = COH.f(i(mi));
+%             COH.peaks.(measures{b}).('maxamp').all(c,1) = mm;
+%             COH.peaks.(measures{b}).('maxwidth').all(c,1) = w(mi);
+%         end
+%         for a = 1:length(freqbands)
+%             ib=wjn_sc(COH.f,bandfreqs(a,1)):wjn_sc(COH.f,bandfreqs(a,2));
+%             COH.bandaverage.(measures{b}).(freqbands{a})(c,:) =nanmean(cpow(wjn_sc(COH.f,3):end));
+%             COH.bandaverage.freqband.(freqbands{a}) = bandfreqs(a,:);
+%             ip = find(ismember(i,ib));
+%            
+%             [mm,mi]=nanmax(m(ip));
+%             if ~isempty(ip)
+%                 COH.([measures{b} '_peakfreq']).(freqbands{a}){c} = COH.f(i(ip));
+%                 COH.([measures{b} '_peakamp']).(freqbands{a}){c} = m(ip);
+%                 COH.([measures{b} '_peakwidth']).(freqbands{a}){c} = COH.f(round(w(ip)));
+%                 COH.([measures{b} '_maxpeakfreq']).(freqbands{a}){c} = COH.f(i(ip(mi)));
+%                 COH.([measures{b} '_maxpeakamp']).(freqbands{a}){c} = mm;
+%                 COH.([measures{b} '_maxpeakwidth']).(freqbands{a}){c} = w(ip(mi));
+%             end
+%         end
+%             
+%     end
+% end
+
+
 
 
 for a=1:length(COH.channels)
