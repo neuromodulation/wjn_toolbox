@@ -36,7 +36,7 @@ for a = 1:length(measures)
     axis xy
     set(gca,'XTick',1:length(COH.channels),'XTickLabel',wjn_strrep(COH.channels),'XTickLabelRotation',45)
     ylabel('Frequency [Hz]')
-    ylim([1 45])
+    ylim([1 90])
     title({wjn_strrep(fname);measures{a}})
     colorbar
     figone(40,80)

@@ -1,21 +1,26 @@
-function [D,SPW,T]=wjn_recon_spw(filename,prominence)
+function [D,SPW,T]=wjn_recon_spw(filename,prominence,distance)
 disp('RECONSTRUCT WAVEFORM FEATURES.')
 
 if ~exist('prominence','var')
-    prominence = 1.96;
+    prominence = 0.1;
 end
+
 
 
 D=spm_eeg_load(filename);
 
-D=wjn_remove_empty_channels(D.fullfile);
+
+if ~exist('distance','var')
+    distance = 1;
+end
+
 
 SPW=[];
 chs = 1:D.nchannels;
 alltimes=[];
 allconds=[];
 mssamples = round(2*round(D.fsample/1000));
-runs = {'peak','trough'};
+runs = {'trough','peak'};
 T=table;
 if isfield(D,'SPW')
     D=rmfield(D,'SPW');
@@ -23,9 +28,10 @@ end
 iev = round(0.125*D.fsample);
 ish = round(0.006.*D.fsample);
 for nrun = 1:2
+    
     for a = 1:D.nchannels
-        
-        keep('ish','iev','save_to_D','prominence','T','runs','nrun','a','filename','D','SPW','filtfreq','chs','alltimes','allconds','mssamples')
+        tic
+        keep('distance','ish','iev','save_to_D','prominence','T','runs','nrun','a','filename','D','SPW','filtfreq','chs','alltimes','allconds','mssamples')
         data=D(a,:);
         data(data==0)=nan;
         good = ~isnan(data);
@@ -34,10 +40,8 @@ for nrun = 1:2
         else
             data(good) = zscore(data(good));
         end
-        
-        
-        [i,~,~,m]=wjn_raw_spw(data,prominence);
-        
+        [i,~,~,m]=wjn_raw_spw(data,prominence,distance);   %figure,plot(D.time,data),hold on,scatter(D.time(i),data(i))
+        keyboard
         irm= [find(i(D.time(i)<1)),find(D.time(i)>(D.time(D.nsamples)-1))];
         i(irm)=[];
         n=0;
@@ -112,15 +116,11 @@ for nrun = 1:2
             risesteepness(n) = max(diff(data(cin:cci)));
             decaysteepness(n) = -min(diff(data(cci:cip)));
             sloperatio(n) = risesteepness(n)-decaysteepness(n);
-            risedecayasymmetry(n) = trise(n)/tfull(n);
-            
-            if ismember(n,1000:1000:1000000)
-                disp(['SPW N=' num2str(n) '/' num2str(length(i)-2) ' CH=' num2str(a) '/' num2str(length(chs))])
-            end
+            risedecayasymmetry(n) = trise(n)/tfull(n);        
         end
+  
         
-        
-        
+        disp(['CH=' num2str(a) '/' num2str(length(chs))])
         
         SPW(a).i=ni(1:n)';
         SPW(a).ipre=nipre(1:n)';
@@ -160,51 +160,48 @@ for nrun = 1:2
         SPW(a).Phase = repmat(runs(nrun),size(ni(1:n)))';
         SPW(a).cond = repmat({['SPW_' runs{nrun} '_' D.chanlabels{chs(a)}]},size(ni(1:n)))';
         SPW(a).prec_cond = strcat({[D.chanlabels{chs(a)} '_' runs{nrun}] },num2str([1:length(ni(1:n))]'));
-        
+        toc
     end
     D.SPW.(runs{nrun}) =SPW;
 end
 
 for a = 1:D.nchannels
-
-    s = [nanmean(D.SPW.(runs{1})(a).Vsharpness) nanmean(D.SPW.(runs{2})(a).Vsharpness)];
+    s = [nanmean(D.SPW.trough(a).Vsharpness) nanmean(D.SPW.peak(a).Vsharpness)];
     SR= log(nanmax([s(1)./s(2),s(2)./s(1)]));
-    if SR>0.1 && s(1)>s(2)
+    if SR>0.05 && s(2)>s(1)
         D(a,:,:)=-1.*D(a,:,:);
-        run1 = D.SPW.(runs{2})(a);
-        run2 = D.SPW.(runs{1})(a);
-        run1.cond = strrep(D.SPW.(runs{2})(a).cond,runs{2},runs{1});
-        run2.cond = strrep(D.SPW.(runs{1})(a).cond,runs{1},runs{2});
-        D.SPW.(runs{1})(a)=run1;
-        D.SPW.(runs{2})(a)=run2;
+        trough = D.SPW.peak(a);
+        peak = D.SPW.trough(a);
+        trough.cond = strrep(D.SPW.peak(a).cond,'peak','trough');
+        peak.cond = strrep(D.SPW.trough(a).cond,'trough','peak');
+        D.SPW.trough(a)=trough;
+        D.SPW.peak(a)=peak;
         D.SPW.inverted(a)=1;
     else
         D.SPW.inverted(a)=0;
     end
     
-    D.SPW.results.N(a,:) = [numel(D.SPW.(runs{2})(a).i) numel(D.SPW.(runs{1})(a).i)];
-    D.SPW.results.Nr(a,:) = D.SPW.results.N(a,:)./max(D.time);
-    
-    D.SPW.results.Vasymmetry(a,1)=nanmean(D.SPW.(runs{1})(a).Vmax)-nanmean(D.SPW.(runs{2})(a).Vmax);
-    D.SPW.results.Pasymmetry(a,1)=nanmean(D.SPW.(runs{2})(a).Pfull)-nanmean(D.SPW.(runs{1})(a).Pfull);
-    D.SPW.results.STDasymmetry(a,1)=nanstd(D.SPW.(runs{2})(a).Pfull)-nanstd(D.SPW.(runs{1})(a).Pfull);
-    D.SPW.results.Tasymmetry(a,1)=nanmean(D.SPW.(runs{1})(a).Tfull)-nanmean(D.SPW.(runs{2})(a).Tfull);
-    D.SPW.results.Tfull(a,:) = [nanmean(D.SPW.(runs{2})(a).Tfull) nanmean(D.SPW.(runs{1})(a).Tfull)];
-    D.SPW.results.Tdecay(a,:) = [nanmean(D.SPW.(runs{2})(a).Tdecay) nanmean(D.SPW.(runs{1})(a).Tdecay)];
-    D.SPW.results.Trise(a,:) = [nanmean(D.SPW.(runs{2})(a).Trise) nanmean(D.SPW.(runs{1})(a).Trise)];
-    D.SPW.results.Pfull(a,:) = [nanmean(D.SPW.(runs{2})(a).Pfull) nanmean(D.SPW.(runs{1})(a).Pfull)];
-    D.SPW.results.Imean(a,:) = [nanmean(D.SPW.(runs{2})(a).Imean) nanmean(D.SPW.(runs{1})(a).Imean)];
-    D.SPW.results.Vsharpness(a,:) =  [nanmean(D.SPW.(runs{2})(a).Vsharpness) nanmean(D.SPW.(runs{1})(a).Vsharpness)];
-    D.SPW.results.Vrisesteepness(a,:) =  [nanmean(D.SPW.(runs{2})(a).Vrisesteepness) nanmean(D.SPW.(runs{1})(a).Vrisesteepness)];
-    D.SPW.results.Vdecaysteepness(a,:) =  [nanmean(D.SPW.(runs{2})(a).Vdecaysteepness) nanmean(D.SPW.(runs{1})(a).Vdecaysteepness)];
-    D.SPW.results.Trisedecayasymmetry(a,:) =  [nanmean(D.SPW.(runs{2})(a).Trisedecayasymmetry) nanmean(D.SPW.(runs{1})(a).Trisedecayasymmetry)];
+    D.SPW.results.N(a,:) = [numel(D.SPW.trough(a).i) numel(D.SPW.peak(a).i)];
+    D.SPW.results.Nr(a,:) = D.SPW.results.N(a,:)./max(D.time); 
+    D.SPW.results.Vasymmetry(a,1)=nanmean(abs(D.SPW.trough(a).Vmax))/nanmean(abs(D.SPW.peak(a).Vmax));
+    D.SPW.results.Pasymmetry(a,1)=nanmean(D.SPW.trough(a).Pfull)/nanmean(D.SPW.peak(a).Pfull);
+    D.SPW.results.STDasymmetry(a,1)=nanstd(D.SPW.trough(a).Pfull)/nanstd(D.SPW.peak(a).Pfull);
+    D.SPW.results.Tasymmetry(a,1)=nanmean(D.SPW.trough(a).Tfull)/nanmean(D.SPW.peak(a).Tfull);
+    D.SPW.results.Tfull(a,:) = [nanmean(D.SPW.trough(a).Tfull) nanmean(D.SPW.peak(a).Tfull)];
+    D.SPW.results.Tdecay(a,:) = [nanmean(D.SPW.trough(a).Tdecay) nanmean(D.SPW.peak(a).Tdecay)];
+    D.SPW.results.Trise(a,:) = [nanmean(D.SPW.trough(a).Trise) nanmean(D.SPW.peak(a).Trise)];
+    D.SPW.results.Pfull(a,:) = [nanmean(D.SPW.trough(a).Pfull) nanmean(D.SPW.peak(a).Pfull)];
+    D.SPW.results.Imean(a,:) = [nanmean(D.SPW.trough(a).Imean) nanmean(D.SPW.peak(a).Imean)];
+    D.SPW.results.Vsharpness(a,:) =  [nanmean(D.SPW.trough(a).Vsharpness) nanmean(D.SPW.peak(a).Vsharpness)];
+    D.SPW.results.Vrisesteepness(a,:) =  [nanmean(D.SPW.trough(a).Vrisesteepness) nanmean(D.SPW.peak(a).Vrisesteepness)];
+    D.SPW.results.Vdecaysteepness(a,:) =  [nanmean(D.SPW.trough(a).Vdecaysteepness) nanmean(D.SPW.peak(a).Vdecaysteepness)];
+    D.SPW.results.Trisedecayasymmetry(a,:) =  [nanmean(D.SPW.trough(a).Trisedecayasymmetry) nanmean(D.SPW.peak(a).Trisedecayasymmetry)];
     D.SPW.results.Vsharpnessratio(a,:) = log(nanmax([D.SPW.results.Vsharpness(a,1)./D.SPW.results.Vsharpness(a,2),D.SPW.results.Vsharpness(a,2)./D.SPW.results.Vsharpness(a,1)]));
-    D.SPW.results.Vsloperatio(a,:) = [nanmean(D.SPW.(runs{2})(a).Vsloperatio) nanmean(D.SPW.(runs{1})(a).Vsloperatio)];
+    D.SPW.results.Vsloperatio(a,:) = [nanmean(D.SPW.trough(a).Vsloperatio) nanmean(D.SPW.peak(a).Vsloperatio)];
     
-    alltimes=[alltimes;D.time(D.SPW.(runs{2})(a).i)';D.time(D.SPW.(runs{1})(a).i)'];
-    allconds = [allconds;D.SPW.(runs{2})(a).cond;D.SPW.(runs{1})(a).cond];
-    
-    T=[T;struct2table(D.SPW.(runs{2})(a));struct2table(D.SPW.(runs{1})(a))];
+    alltimes=[alltimes;D.time(D.SPW.peak(a).i)';D.time(D.SPW.trough(a).i)'];
+    allconds = [allconds;D.SPW.peak(a).cond;D.SPW.trough(a).cond];  
+    T=[T;struct2table(D.SPW.peak(a));struct2table(D.SPW.trough(a))];
 end
 
 D.SPW.alltimes=alltimes;
@@ -259,7 +256,7 @@ D.SPW.fsample = D.fsample;
 D.SPW.prominence = prominence;
 D.SPW = wjn_recon_spwpeaks(D.SPW);
 SPW = D.SPW;
-
+save(D)
 
 
 

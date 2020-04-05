@@ -106,3 +106,4 @@ for a = 1:size(COH.chancomb,1)
 end
 COH.cchannels = strcat(COH.chancomb(:,1),'__',COH.chancomb(:,2));
 D.COH =COH;
+save(D)

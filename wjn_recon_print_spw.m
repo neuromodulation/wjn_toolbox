@@ -50,22 +50,25 @@ writetable(T,fullfile(fpath,['spw_results_' fname(1:end-4) '.csv']),'WriteRowNam
 disp('PRINT WAVE EVOKED POTENTIALS.')
 figure('visible','off')
 
-for a = 1:length(D.SPW.avg.conditions)
-    imagesc(SPW.avg.time,1:D.nchannels,squeeze(SPW.avg.tvalue(:,:,a)));
-    axis xy
-    title(strrep(D.SPW.avg.conditions{a},'_',' '))
-    set(gca,'YTick',1:D.nchannels,'YTickLabel',wjn_strrep(D.chanlabels),'YTickLabelRotation',45)
-    xlabel('Time [ms]')
-    figone(40,20)
-    hold off
-    cb=colorbar;ylabel(cb,'T')
-    print(fullfile(fpath,['SPW_WEP_Tvalues_' D.SPW.avg.conditions{a} '_' fname]),'-dpng','-r90')
-    caxis([-3 3]);
+measures = {'data','tvalue'};
+for n = 1:length(measures)
+    for a = 1:length(D.SPW.avg.conditions)
+        imagesc(SPW.avg.time,1:D.nchannels,squeeze(SPW.avg.(measures{n})(:,:,a)));
+        axis xy
+        title(strrep(D.SPW.avg.conditions{a},'_',' '))
+        set(gca,'YTick',1:D.nchannels,'YTickLabel',wjn_strrep(D.chanlabels),'YTickLabelRotation',45)
+        xlabel('Time [ms]')
+        figone(40,20)
+        hold off
+        cb=colorbar;ylabel(cb,'T')
+        print(fullfile(fpath,['SPW_WEP_' measures{n} '_' D.SPW.avg.conditions{a} '_' fname]),'-dpng','-r90')
+        caxis([-3 3]);
+    end
 end
 close
 
 disp('PRINT WEP DELAYS AND PEAKS.')
-measures = {'data','tvalue'};
+
 for a = 1:length(measures)
     figure('visible','off')
     delays = SPW.avg.([measures{a} '_delays']);
@@ -75,13 +78,13 @@ for a = 1:length(measures)
     cb=colorbar;ylabel(cb,'Delay [ms]')
     set(gca,'XTick',1:size(delays,1),'XTickLabel',strrep(D.chanlabels,'_',' '),'XTickLabelRotation',90)
     set(gca,'YTick',1:size(delays,2),'YTickLabel',strrep(D.SPW.avg.conditions,'_',' '))
-     if D.nchannels<20
-    for b=1:size(delays,1)
-        for c = 1:size(delays,2)
-            text(b,c,num2str(delays(b,c),2),'color','w','FontSize',12)
+    if D.nchannels<20
+        for b=1:size(delays,1)
+            for c = 1:size(delays,2)
+                text(b,c,num2str(delays(b,c),2),'color','w','FontSize',12)
+            end
         end
     end
-     end
     title(measures{a})
     subplot(1,2,2)
     imagesc(peaks')

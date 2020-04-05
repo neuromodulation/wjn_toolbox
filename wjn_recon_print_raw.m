@@ -24,7 +24,7 @@ figure('visible','off')
 wjn_plot_raw_signals(raw.time{1},raw.trial{1},strrep(D.chanlabels,'_',' '));
 xlabel('Time [s]')
 figone(40,40)
-myprint(fullfile(fpath,['raw_' fname]));
+print(fullfile(fpath,['raw_' fname]),'-dpng','-r90');
 savefig(fullfile(fpath,['raw_' fname '.fig']))
 close
 
@@ -33,5 +33,5 @@ figure('visible','off')
 wjn_plot_raw_signals(D.time(D.indsample(ix):D.indsample(ix+10)),D(:,D.indsample(ix):D.indsample(ix+10)),strrep(D.chanlabels,'_',' '));
 xlabel('Time [s]')
 figone(40,40)
-myprint(fullfile(fpath,['raw_zoom_' fname]));
+print(fullfile(fpath,['raw_zoom_' fname '.png']),'-dpng','-r90');
 close

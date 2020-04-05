@@ -8,14 +8,13 @@ end
 
 if ~exist('SPW','var')
     try 
-       SPW = D.spw;
+       SPW = D.SPW;
     catch
         [D,SPW]=wjn_recon_spw(D.fullfile);
     end
 end
 
-fname = D.fname;
-fname =  fname(1:end-4);
+fname = D.fname;fname =  fname(1:end-4);
 if ~exist('fpath','var')
     fpath = fullfile('.',['recon_spw_' fname]);
     mkdir(fpath)
@@ -37,6 +36,6 @@ for a = nfig
         end
     end
     ylabel('Amplitude [Z]');xlabel('Time [s]');figone(30,50);savefig(fullfile(fpath,['spw_raw_' num2str(a) '_' fname '.fig']))
-    print(fullfile(fpath,['spw_raw_' num2str(a) '_' fname '.png']),'-dpng','-r90')
+    print(fullfile(fpath,['SPW_RAW_' num2str(a) '_' fname '.png']),'-dpng','-r90')
 end
 close
