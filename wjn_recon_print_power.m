@@ -23,8 +23,7 @@ end
 
 fname =  COH.fname(5:end-4);
 if ~exist('fpath','var')
-    fpath = fullfile('.',['recon_power_' fname]);
-    mkdir(fpath)
+    fpath = wjn_recon_fpath(D.fullfile,'POW');
 end
 measures = {'mpow','rpow','logfit'};
 
@@ -41,7 +40,8 @@ for a = 1:length(measures)
     colorbar
     figone(40,80)
     print(fullfile(fpath,[cfname '.png']),'-dpng','-r90')
-    T=array2table(data,'VariableNames',COH.channels,'RowNames',cellstr(num2str(COH.f',4)));
+    rnum = 1+length(num2str(max(round(COH.f))));
+    T=array2table(data,'VariableNames',COH.channels,'RowNames',cellstr(num2str(COH.f',rnum)));
     writetable(T,fullfile(fpath,[cfname '.csv']))
 end
 close

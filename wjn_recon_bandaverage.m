@@ -57,3 +57,6 @@ if isfield(COH,'cchannels')
     bandaverage.cchannels = COH.cchannels;
 end
 COH.bandaverage = bandaverage;
+try
+    save(D)
+end

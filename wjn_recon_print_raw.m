@@ -8,8 +8,7 @@ end
 
 fname =  D.fname;fname = fname(1:end-4);
 if ~exist('fpath','var')
-    fpath = fullfile(D.path,['recon_raw_' fname]);
-    mkdir(fpath)
+    fpath = wjn_recon_fpath(D.fullfile,'RAW');
 end
 
 

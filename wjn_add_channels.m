@@ -8,6 +8,14 @@ if ischar(chans)
     chans = {chans};
 end
 
+if isempty(idata) && size(chans,2)==2
+  
+    for a = 1:size(chans,1)
+        idata(a,:,:) = D(ci(chans{a,1},D.chanlabels,1),:,:)-D(ci(chans{a,2},D.chanlabels,1),:,:);
+    end
+    chans = strcat(chans(:,1),'-',chans(:,2));
+end
+
 if isstruct(idata)
     chans = fieldnames(idata);
     ndata = idata;

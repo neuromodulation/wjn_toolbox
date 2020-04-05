@@ -23,6 +23,12 @@ bandpeaks.channels = COH.channels;
 bandpeaks.freqbands=freqbands;
 bandpeaks.bandfreqs = bandfreqs;
 bandpeaks.measures = measures;
+pre={'npeaks','freq','amp','width'};
+for a = 1:length(measures)
+    for b = 1:length(pre)
+         bandpeaks.(measures{a}).(pre{b})=nan(length(COH.channels),length(freqbands));
+    end
+end
 for a = 1:length(measures)
     for b = 1:length(COH.channels)
         for c = 1:length(freqbands)
@@ -43,3 +49,7 @@ for a = 1:length(measures)
     end
 end
 COH.bandpeaks = bandpeaks;
+try
+    D.COH=COH;
+    save(D)
+end

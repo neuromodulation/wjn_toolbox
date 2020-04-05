@@ -1,4 +1,4 @@
-function [D,SPW,T]=wjn_recon_spw(filename,prominence,distance)
+function [D,SPW,T]=wjn_recon_spw(filename,prominence,distance,freqband)
 disp('RECONSTRUCT WAVEFORM FEATURES.')
 
 if ~exist('prominence','var')
@@ -31,17 +31,27 @@ for nrun = 1:2
     
     for a = 1:D.nchannels
         tic
-        keep('distance','ish','iev','save_to_D','prominence','T','runs','nrun','a','filename','D','SPW','filtfreq','chs','alltimes','allconds','mssamples')
+        keep('freqband','distance','ish','iev','save_to_D','prominence','T','runs','nrun','a','filename','D','SPW','filtfreq','chs','alltimes','allconds','mssamples')
         data=D(a,:);
         data(data==0)=nan;
         good = ~isnan(data);
+        
+      
         if nrun == 1
             data(good) = -zscore(data(good));
         else
             data(good) = zscore(data(good));
         end
-        [i,~,~,m]=wjn_raw_spw(data,prominence,distance);   %figure,plot(D.time,data),hold on,scatter(D.time(i),data(i))
-        keyboard
+        
+        if exist('freqband','var')
+            pdata = ft_preproc_bandpassfilter(data,D.fsample,freqband);
+        else
+            pdata = data;
+        end
+        
+        
+        [m,i]=findpeaks(pdata,'MinPeakWidth',round(0.012*D.fsample));   %figure,plot(D.time,pdata),hold on,scatter(D.time(i),pdata(i))
+ 
         irm= [find(i(D.time(i)<1)),find(D.time(i)>(D.time(D.nsamples)-1))];
         i(irm)=[];
         n=0;
@@ -257,7 +267,8 @@ D.SPW.prominence = prominence;
 D.SPW = wjn_recon_spwpeaks(D.SPW);
 SPW = D.SPW;
 save(D)
-
+[fpath,fname] = wjn_recon_fpath(D.fullfile,'SPW')
+writetable(T,fullfile(fpath,['SPW_table_' fname '.csv']))
 
 
 

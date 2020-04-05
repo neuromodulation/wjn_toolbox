@@ -40,8 +40,7 @@ end
 
 fname =  COH.fname(5:end-4);
 if ~exist('fpath','var')
-    fpath = fullfile('.',['recon_bandaverage_' fname]);
-    mkdir(fpath)
+    fpath = wjn_recon_fpath(D.fullfile,'BANDS');
 end
 
 figure('visible','off')

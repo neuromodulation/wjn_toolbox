@@ -16,8 +16,7 @@ end
 
 fname = D.fname;fname =  fname(1:end-4);
 if ~exist('fpath','var')
-    fpath = fullfile('.',['recon_spw_' fname]);
-    mkdir(fpath)
+    fpath = wjn_recon_fpath(D.fullfile,'SPW');
 end
 
 ix = randi(round(D.time(end)-10)-1);

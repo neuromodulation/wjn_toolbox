@@ -73,4 +73,4 @@ COH.logfit = logfit;
 COH.pow = permute(pow,[2,3,1]);
 COH.mpow = mpow;
 D.COH=COH;
-
+save(D)
