@@ -84,6 +84,7 @@ for nrun = 1:2
                 [~,fin]=min(data(nin));
             end
             pci=nin(fin)-mssamples:nin(fin)+mssamples;
+            pci(pci>=cci)=[];
             [minn,in] = min(data(pci));
             cin=pci(in);
             vpre(n)= -minn;
@@ -99,6 +100,7 @@ for nrun = 1:2
                 [~,fip]=min(data(nip));
             end
             pci=nip(fip)-mssamples:nip(fip)+mssamples;
+            pci(pci<=cci)=[];;
             [mip,ip] = min(data(pci));
             cip=pci(ip);
             vpost(n) = -mip;

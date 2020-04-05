@@ -4,6 +4,10 @@ if ~exist('plotit','var')
     plotit=1;
 end
 
+if ~exist('thresh','var')
+    thresh=0;
+end
+
 data(data==0)=nan;
 if size(time)==  [1,1]
     time = linspace(0,length(data)/time,length(data));

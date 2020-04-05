@@ -218,12 +218,12 @@ if stage >= 2
     disp('Print ERPs.')
     figure('visible','off')
     end
-    keyboard
+    
     for a = 1:length(D.spw.avg.conditions)
         [peaks(:,a),delays(:,a)]=wjn_plot_spw(D.spw.avg.time,D.spw.avg.tvalue(:,:,a),D.chanlabels,printit,1);
        if printit
         title(strrep(D.spw.avg.conditions{a},'_',' '))
-        figone(30,10)
+        figone(40,20)
         hold off
         myprint(fullfile(fpath,['SPW_ERP_' D.spw.avg.conditions{a} '_' fname]))
        end
@@ -243,7 +243,7 @@ if stage >= 2
     cb=colorbar;ylabel(cb,'Z')
     set(gca,'XTick',1:size(peaks,1),'XTickLabel',strrep(D.chanlabels,'_',' '),'XTickLabelRotation',90)
     set(gca,'YTick',1:size(peaks,2),'YTickLabel',strrep(D.spw.avg.conditions,'_',' '))
-    figone(35,55)
+    figone(40,65)
     myprint(fullfile(fpath,['SPW_ERP_results_' D.spw.avg.conditions{a} '_' fname]))
     close 
     end
@@ -264,7 +264,7 @@ if stage > 2 && D.nchannels>1
     cfg.method = 'mtmfft';
     cfg.output = 'powandcsd';
     cfg.taper = 'dpss';
-    cfg.tapsmofrq=10;
+    cfg.tapsmofrq=5;
     cfg.output ='powandcsd';
     cfg.keeptrials = 'yes';
     cfg.keeptapers='no';
@@ -311,23 +311,23 @@ if stage > 2 && D.nchannels>1
         ylabel('Imaginary part of coherence')
         xlabel('Frequency [Hz]')
         hold on
-        legend(p,strrep(D.chanlabels(setdiff(1:D.nchannels,a)),'_',' '),'Location','SouthOutside')
+        legend(p,strrep(D.chanlabels(setdiff(1:D.nchannels,a)),'_',' '),'Location','WestOutside')
         xlim([3 45])
         title(strrep(D.chanlabels{a},'_',' '))
     end
-    figone(40,60)
+    figone(50,80)
     savefig(fullfile(fpath,['iCOH_all_' fname '.fig']))
     close
     
     figure('visible','off')
-    figone(20,30)
+    figone(50,80)
     for a = 1:D.nchannels
         subplot(1,3,1:2)
         i = wjn_cohfinder(D.chanlabels{a},D.chanlabels(setdiff(1:D.nchannels,a)),COH.chancomb,0);
         p=plot(COH.f,COH.icoh(i,:));
         ylabel('Imaginary part of coherence')
         xlabel('Frequency [Hz]')
-        legend(p,strrep(D.chanlabels(setdiff(1:D.nchannels,a)),'_',' '),'Location','SouthOutside')
+        legend(p,strrep(D.chanlabels(setdiff(1:D.nchannels,a)),'_',' '),'Location','WestOutside')
         xlim([3 45])
         title(strrep(D.chanlabels{a},'_',' '))
         subplot(1,3,3)
@@ -389,21 +389,21 @@ if stage > 2 && D.nchannels>1
             hold on
             ylabel('Corrected granger causality')
             xlabel('Frequency [Hz]')
-            legend(p,strrep(D.chanlabels(i),'_',' '),'Location','SouthOutside')
+            legend(p,strrep(D.chanlabels(i),'_',' '),'Location','WestOutside')
             xlim([3 45])
             title(strrep(D.chanlabels{a},'_',' '))
         end
-        figone(40,60)
+        figone(50,80)
         savefig(fullfile(fpath,['GRANGER_all_' fname '.fig']))
         close
         
         figure('visible','off')
-        figone(20,30)
+        figone(50,80)
         for a = 1:D.nchannels
             subplot(1,3,1:2)
             i = setdiff(1:D.nchannels,a);
             p=plot(COH.f,squeeze(COH.rcgranger(a,i,:))-squeeze(COH.rcgranger(i,a,:)));
-            legend(p,strrep(D.chanlabels(i),'_',' '),'Location','SouthOutside')
+            legend(p,strrep(D.chanlabels(i),'_',' '),'Location','WestOutside')
             ylabel('Corrected granger causality')
             xlabel('Frequency [Hz]')
             xlim([3 45])
