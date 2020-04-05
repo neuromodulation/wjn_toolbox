@@ -76,7 +76,7 @@ for a=1:size(mpow,1)
     end
 end
 
-
+keyboard
 fname = D.fname;
 COH = [];
 COH.name = fname(1:length(fname)-4);
@@ -154,7 +154,7 @@ if stage <= 1
 end
 if stage >= 2
     
-    D = wjn_spw(Dc,1.96,1);
+    D = wjn_spw(Dc,2.58,1);
     spw = D.spw;
     
     figint = 4;
@@ -446,7 +446,15 @@ if stage > 2 && D.nchannels>1
             xlim([3 45])
             title(strrep(D.chanlabels{a},'_',' '))
             subplot(1,3,3)
-            wjn_plot_raw_signals(COH.f,squeeze(COH.rcgranger(a,i,:))-squeeze(COH.rcgranger(i,a,:)),D.chanlabels(setdiff(1:D.nchannels,a)))
+            rcgranger=squeeze(COH.rcgranger(a,i,:))-squeeze(COH.rcgranger(i,a,:));
+            if size(rcgranger,1)~=length(COH.channels)
+                rcgranger=rcgranger';
+            end
+            try
+                wjn_plot_raw_signals(COH.f,rcgranger,D.chanlabels(setdiff(1:D.nchannels,a)))
+            catch
+                wjn_plot_raw_signals(COH.f,rcgranger',D.chanlabels(setdiff(1:D.nchannels,a)))
+            end
             xlim([3 45])
             xlabel('Frequency [Hz]')
             myprint(fullfile(fpath,['GRANGER_' D.chanlabels{a} '_' fname]))

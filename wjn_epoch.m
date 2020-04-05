@@ -56,7 +56,7 @@ if exist('trl','var') && ~isempty(trl)
         anames = fieldnames(D.analog);
         for a = 1:length(anames)
             for b = 1:size(D.trl,1)
-                D.eanalog.(anames{a})(b,:)= D.analog.(anames{a})(D.trl(b,1):D.trl(b,2));
+                D.eanalog.(anames{a})(b,:)= D.analog.(anames{a})(round(D.trl(b,1)):round(D.trl(b,2)));
             end
         end
         save(D)
