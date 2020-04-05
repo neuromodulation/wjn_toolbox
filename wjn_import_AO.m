@@ -11,9 +11,9 @@ if ~exist('channels','var')
     channels(ci('CADD_',channels))=[];
     
     an = ci('ANAL',channels);
-    
+
     for a =1:length(an)
-        if nanmax(abs(mydiff(d.(channels{an(a)}))))<100
+        if numel((unique(d.(channels{an(a)}))))<100
             rm(a)=an(a);
         else
             rm(a)=0;
@@ -30,6 +30,8 @@ if ~exist('channels','var')
             chanlabels{a} = strrep(tmp{end},'_','');
         end
     end
+else
+    chanlabels=channels;
 end
 
 for a = 1:length(channels)
@@ -37,7 +39,7 @@ for a = 1:length(channels)
     if a == 1
         fsample = d.(fields{i(2)})*1000;
         timewin = [d.(fields{i(5)}) d.(fields{i(6)})];
-    elseif d.(fields{i(2)}) == fsample/1000
+    elseif a>1 && d.(fields{i(2)}) == fsample/1000
         data(a,:,1) = d.(fields{i(1)});
     else
         rd=resample(double(d.(fields{i(1)})),fsample,1000*d.(fields{i(2)}));
