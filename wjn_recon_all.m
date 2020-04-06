@@ -20,18 +20,18 @@ wjn_recon_print_spw(D)
 %% COMPUTE POWER 
 normfreq=[5 45; 55 95];
 [D,D.COH]=wjn_recon_power(D.fullfile,normfreq);
-wjn_recon_print_power(D.COH);
+wjn_recon_print_power(D);
 %% AVERAGE BAND POWER
 freqbands  = {'all','lowfreq','theta','alpha','beta','low_beta','high_beta'};bandfreqs = [3 35;4 12;4 8;8 12;13 35;13 20;20 35];measures = {'mpow','rpow','logfit'};
 [D.COH]=wjn_recon_bandaverage(D.COH,measures,freqbands,bandfreqs);
-wjn_recon_print_bandaverage(D.COH);
+wjn_recon_print_bandaverage(D);
 %% PEAK IDENTIFICATION
 freqbands  = {'all','lowfreq','theta','alpha','beta','low_beta','high_beta'};bandfreqs = [3 35;4 12;4 8;8 12;13 35;13 20;20 35];measures = {'mpow','rpow','logfit'};
 D.COH=wjn_recon_peakpower(D.COH,measures,freqbands,bandfreqs);save(D)
-wjn_recon_print_bandpeaks(D.COH,fpath);
+wjn_recon_print_bandpeaks(D);
 %% CONNECTIVITY COMPUTATION
 [D,D.COH]=wjn_recon_connectivity(D);
-wjn_recon_print_connectivity(D.COH)
+wjn_recon_print_connectivity(D)
 %% AVERAGE BAND CONNECTIVITY
 freqbands  = {'all','lowfreq','theta','alpha','beta','low_beta','high_beta'};bandfreqs = [3 35;4 12;4 8;8 12;13 35;13 20;20 35];
 measures = {'coh','icoh','plv','wpli','ccgranger'};

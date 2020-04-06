@@ -1,4 +1,4 @@
-function wjn_boxplot(y,cmap,x,bwidth)
+function wjn_boxplot(y,cmap,x,bwidth,str)
 
 if ~exist('cmap','var') || isempty(cmap)
     try
@@ -16,7 +16,7 @@ end
 if ~exist('bwidth','var') || isempty(bwidth)
     bwidth=1;
 end
-if ~exist('x','var')
+if ~exist('x','var') || isempty(x)
     x=1:size(y,2);
 end
 if ~exist('ec','var') || isempty(ec)
@@ -34,7 +34,7 @@ l = size(y,2);
 % x = 1:l;
 % end
     b=boxplot(y,x,'symbol','k','Whisker',1,'width',bwidth,'boxstyle','filled','color','k','medianstyle','line','positions',x);
-       
+       hold on
 for a=1:l
 %     if strcmp(oc,'c')
 %         ec = cmap(a,:);
@@ -55,6 +55,13 @@ for a=1:l
 % keyboard
    set(b(2,a),'color',cmap(a,:),'linewidth',bwidth*10);
    set(b(3,a),'XData',[x(a)-.2*bwidth,x(a)+.2*bwidth]);
+   scatter(ones(size(y,1),1).*a,y(:,a),'k.');
+   if exist('str','var')
+       for c=1:size(y,1)
+           text(a,y(c,a),['.    ' wjn_strrep( str{c})],'FontSize',5)
+       end
+   end
+
 %    set(b(3,a),'width',1)
 %     b(a) = bar(x,ny,'FaceColor',cmap(a,:),'barwidth',bwidth);
     hold on

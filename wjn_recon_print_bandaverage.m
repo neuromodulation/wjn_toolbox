@@ -40,14 +40,18 @@ end
 
 fname =  COH.fname(5:end-4);
 if ~exist('fpath','var')
-    fpath = wjn_recon_fpath(D.fullfile,'BANDS');
+    try
+        fpath = wjn_recon_fpath(D.fullfile,'BANDS');
+    catch
+        fpath='.';
+    end
 end
 
 figure('visible','off')
 for a = 1:length(bandaverage.measures)
     cfname = ['bandaverage_' bandaverage.measures{a} '_' fname]; 
     data = bandaverage.(bandaverage.measures{a})';
-    if size(data,2) > length(bandaverage.channels)
+    if size(data,2) ~= length(bandaverage.channels)
         chans = bandaverage.cchannels;
     else
         chans = bandaverage.channels;

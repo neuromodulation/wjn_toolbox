@@ -100,7 +100,7 @@ for nrun = 1:2
                 [~,fip]=min(data(nip));
             end
             pci=nip(fip)-mssamples:nip(fip)+mssamples;
-            pci(pci<=cci)=[];;
+            pci(pci<=cci)=[];
             [mip,ip] = min(data(pci));
             cip=pci(ip);
             vpost(n) = -mip;
