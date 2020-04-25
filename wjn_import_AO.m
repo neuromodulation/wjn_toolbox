@@ -81,22 +81,22 @@ if ~isempty(iecog)
     D=wjn_ecog_rereference(D.fullfile);
 end
 
-istnl = ci({'STNL8','STNL1'},D.chanlabels)
-addchan = {};
-idata = [];
-if length(istnl) == 2
-    idata(end+1,:) = D(istnl(2),:)-D(istnl(1),:);
-    addchan{end+1} = 'STNL18';
-end
-
-istnr = ci({'STNR8','STNR1'},D.chanlabels)
-if length(istnr) == 2
-    idata(end+1,:) = D(istnr(2),:)-D(istnr(1),:);
-    addchan{end+1} = [addchan 'STNR18'];
-end
-if ~isempty(addchan)
-    D=wjn_add_channels(D.fullfile,idata,addchan)
-end
+% istnl = ci({'STNL8','STNL1'},D.chanlabels)
+% addchan = {};
+% idata = [];
+% if length(istnl) == 2
+%     idata(end+1,:) = D(istnl(2),:)-D(istnl(1),:);
+%     addchan = {'STNL18'};
+% end
+% 
+% istnr = ci({'STNR8','STNR1'},D.chanlabels)
+% if length(istnr) == 2
+%     idata(end+1,:) = D(istnr(2),:)-D(istnr(1),:);
+%     addchan = [addchan {'STNR18'}];
+% end
+% if ~isempty(addchan)
+%     D=wjn_add_channels(D.fullfile,idata,addchan)
+% end
 
 D=chantype(D,':',wjn_chantype(D.chanlabels));
 save(D);

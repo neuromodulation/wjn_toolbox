@@ -8,12 +8,16 @@ if ischar(chans)
     chans = {chans};
 end
 
-if isempty(idata) && size(chans,2)==2
-  
-    for a = 1:size(chans,1)
-        idata(a,:,:) = D(ci(chans{a,1},D.chanlabels,1),:,:)-D(ci(chans{a,2},D.chanlabels,1),:,:);
+if iscell(idata) && size(idata,2)==2
+    refchans = idata;
+    idata=[];
+    for a = 1:size(refchans,1)
+        
+        idata(a,:,:) = D(ci(refchans{a,1},D.chanlabels,1),:,:)-D(ci(refchans{a,2},D.chanlabels,1),:,:);
     end
-    chans = strcat(chans(:,1),'-',chans(:,2));
+    if ~exist('chans','var') || isempty(chans)
+        chans = strcat(chans(:,1),'-',chans(:,2));
+    end
 end
 
 if isstruct(idata)

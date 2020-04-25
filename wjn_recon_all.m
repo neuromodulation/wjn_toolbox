@@ -17,6 +17,9 @@ wjn_recon_print_raw(D.fullfile);
 [D,SPW] = wjn_recon_spw(D);
 wjn_recon_print_spw_raw(D)
 wjn_recon_print_spw(D)
+%% BURST CHARACTERIZATION
+D=wjn_recon_bursts(D);
+wjn_recon_print_bursts(D);
 %% COMPUTE POWER 
 normfreq=[5 45; 55 95];
 [D,D.COH]=wjn_recon_power(D.fullfile,normfreq);
