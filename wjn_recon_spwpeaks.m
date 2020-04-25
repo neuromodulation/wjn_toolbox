@@ -25,8 +25,13 @@ for a = 1:size(data,1)
     i = [in ip];
     m = [-mn mp];
     [~,mi]=max(abs(m));
+    if isempty(mp)
+        mm(a)=nan;
+        ti(a)=nan;
+    else
     mm(a)=m(mi);
     ti(a) = time(i(mi));
+    end
 end
 
 SPW.avg.([measures{n} '_peaks'])(:,b) = mm;

@@ -1,8 +1,8 @@
 function [D,SPW,T]=wjn_recon_spw(filename,freqband)
 disp('RECONSTRUCT WAVEFORM FEATURES.')
-
-
 D=spm_eeg_load(filename);
+
+
 
 
 SPW=[];
@@ -21,12 +21,12 @@ for nrun = 1:2
     
     for a = 1:D.nchannels
         tic
-        keep('freqband','distance','ish','iev','save_to_D','prominence','T','runs','nrun','a','filename','D','SPW','filtfreq','chs','alltimes','allconds','mssamples')
+        keep('freqband','ish','iev','save_to_D','T','runs','nrun','a','filename','D','SPW','filtfreq','chs','alltimes','allconds','mssamples')
         data=D(a,:);
         data(data==0)=nan;
         good = ~isnan(data);
         
-      
+        
         if nrun == 1
             data(good) = -zscore(data(good));
         else
@@ -40,7 +40,7 @@ for nrun = 1:2
         end
         
         
-        [m,ti]=findpeaks(pdata,D.fsample,'MinPeakWidth',0.01);   %figure,plot(D.time,pdata),hold on,scatter(D.time(i),pdata(i))
+        [m,ti]=findpeaks(pdata,D.fsample,'MinPeakWidth',0.012);   %figure,plot(D.time,pdata),hold on,scatter(D.time(i),pdata(i))
         i=find(ismember(D.time,ti));
         irm= [find(i(D.time(i)<1)),find(D.time(i)>(D.time(D.nsamples)-1))];
         i(irm)=[];
@@ -60,107 +60,49 @@ for nrun = 1:2
             i(b)=cci;
             ni(n)=cci;
             
-            dpre(n) = (cci-i(b-1))./D.fsample*1000;
-            dpost(n) = (i(b+1)-cci)./D.fsample*1000;
             
-            t0 = 1000*D.time(cci);
+            disp(['CH=' num2str(a) '/' num2str(length(chs))])
             
-            if cci>D.fsample && cci<D.nsamples-D.fsample
-                cclimp = D.fsample;
-                cclimn = D.fsample;
-            elseif cci<D.fsample
-                cclimn =cci-1;
-                cclimp = D.fsample;
-            else
-                cclimn=D.fsample-1;
-                cclimp = D.nsamples-cci-1;
-            end
+            SPW(a).i=ni(1:n)';
+            SPW(a).ipre=nipre(1:n)';
+            SPW(a).ipost=nipost(1:n)';
+            SPW(a).Tpeak = D.time(ni(1:n))';
+            SPW(a).Tpre = D.time(nipre(1:n))';
+            SPW(a).Tpost = D.time(nipost(1:n))';
+            SPW(a).Tfull = tfull(1:n)';
+            SPW(a).Tdecay = tdecay(1:n)';
+            SPW(a).Trise = trise(1:n)';
+            SPW(a).Tasymmetry = trise(1:n)'./tdecay(1:n)';
+            SPW(a).Trisedecayasymmetry = risedecayasymmetry(1:n)';
             
-            nin = cci-1:-1:cci-cclimn;
-            [fmin,fin]=findpeaks(-data(nin),'Npeaks',1);
-            if isempty(fin)
-                [~,fin]=min(data(nin));
-            end
-            pci=nin(fin)-mssamples:nin(fin)+mssamples;
-            pci(pci>=cci)=[];
-            [minn,in] = min(data(pci));
-            cin=pci(in);
-            vpre(n)= -minn;
-            tdecay(n) = t0-D.time(cin)*1000;
-            ppre(n) = -minn-vtrough(n);
-            vdecay(n) = ppre(n)/tdecay(n);
-            nipre(n) = cin;
+            SPW(a).Vmax = vtrough(1:n)';
+            SPW(a).Vpre = vpre(1:n)';
+            SPW(a).Vpost = vpost(1:n)';
+            SPW(a).Vasymmetry = vtrough(1:n)'./(vpre(1:n)'+vpost(1:n)');
             
+            SPW(a).Vsharpness = sharpness(1:n)';
+            SPW(a).Vrisesteepness = risesteepness(1:n)';
+            SPW(a).Vdecaysteepness = decaysteepness(1:n)';
+            SPW(a).Vsloperatio = sloperatio(1:n)';
             
-            nip = cci+1:cci+cclimp;
-            [~,fip]=findpeaks(-data(nip),'Npeaks',1);
-            if isempty(fip)
-                [~,fip]=min(data(nip));
-            end
-            pci=nip(fip)-mssamples:nip(fip)+mssamples;
-            pci(pci<=cci)=[];
-            [mip,ip] = min(data(pci));
-            cip=pci(ip);
-            vpost(n) = -mip;
-            trise(n) = D.time(cip)*1000-t0;
-            ppost(n) = -mip-vtrough(n);
-            vrise(n) = ppost(n)/trise(n);
-            nipost(n) = cip;
+            SPW(a).VTdecay = vdecay(1:n)';
+            SPW(a).VTrise = vrise(1:n)';
+            SPW(a).VTrisedecayasymmetry = abs(vdecay(1:n)')./(abs(vdecay(1:n))'+abs(vrise(1:n)'));
             
-            pfull(n) = ppre(n)+ppost(n);
-            tfull(n) = tdecay(n)+trise(n);
-            dmean(n) = (dpre(n)+dpost(n))/2;
-            wv(n,:) = data(cci-iev-1:cci+iev);
+            SPW(a).Pfull = pfull(1:n)';
+            SPW(a).Ppre = ppre(1:n)';
+            SPW(a).Ppost = ppost(1:n)';
+            SPW(a).Pasymmetry = vtrough(1:n)'/nansum([vpre(1:n),vpost(1:n)]');
             
-            sharpness(n) = data(cci)-nanmean(data([cci-ish:cci-1 cci+1:cci+ish]));
-            risesteepness(n) = max(diff(data(cin:cci)));
-            decaysteepness(n) = -min(diff(data(cci:cip)));
-            sloperatio(n) = risesteepness(n)-decaysteepness(n);
-            risedecayasymmetry(n) = trise(n)/tfull(n);        
+            SPW(a).Imean=dmean(1:n)';
+            SPW(a).Ipre = dpre(1:n)';
+            SPW(a).Ipost = dpost(1:n)';
+            SPW(a).Channel = repmat(D.chanlabels(chs(a)),size(ni(1:n)))';
+            SPW(a).Phase = repmat(runs(nrun),size(ni(1:n)))';
+            SPW(a).cond = repmat({['SPW_' runs{nrun} '_' D.chanlabels{chs(a)}]},size(ni(1:n)))';
+            SPW(a).prec_cond = strcat({[D.chanlabels{chs(a)} '_' runs{nrun}] },num2str([1:length(ni(1:n))]'));
+            toc
         end
-  
-        
-        disp(['CH=' num2str(a) '/' num2str(length(chs))])
-        
-        SPW(a).i=ni(1:n)';
-        SPW(a).ipre=nipre(1:n)';
-        SPW(a).ipost=nipost(1:n)';
-        SPW(a).Tpeak = D.time(ni(1:n))';
-        SPW(a).Tpre = D.time(nipre(1:n))';
-        SPW(a).Tpost = D.time(nipost(1:n))';
-        SPW(a).Tfull = tfull(1:n)';
-        SPW(a).Tdecay = tdecay(1:n)';
-        SPW(a).Trise = trise(1:n)';
-        SPW(a).Tasymmetry = trise(1:n)'./tdecay(1:n)';
-        SPW(a).Trisedecayasymmetry = risedecayasymmetry(1:n)';
-        
-        SPW(a).Vmax = vtrough(1:n)';
-        SPW(a).Vpre = vpre(1:n)';
-        SPW(a).Vpost = vpost(1:n)';
-        SPW(a).Vasymmetry = vtrough(1:n)'./(vpre(1:n)'+vpost(1:n)');
-        
-        SPW(a).Vsharpness = sharpness(1:n)';
-        SPW(a).Vrisesteepness = risesteepness(1:n)';
-        SPW(a).Vdecaysteepness = decaysteepness(1:n)';
-        SPW(a).Vsloperatio = sloperatio(1:n)';
-        
-        SPW(a).VTdecay = vdecay(1:n)';
-        SPW(a).VTrise = vrise(1:n)';
-        SPW(a).VTrisedecayasymmetry = abs(vdecay(1:n)')./(abs(vdecay(1:n))'+abs(vrise(1:n)'));
-        
-        SPW(a).Pfull = pfull(1:n)';
-        SPW(a).Ppre = ppre(1:n)';
-        SPW(a).Ppost = ppost(1:n)';
-        SPW(a).Pasymmetry = vtrough(1:n)'/nansum([vpre(1:n),vpost(1:n)]');
-        
-        SPW(a).Imean=dmean(1:n)';
-        SPW(a).Ipre = dpre(1:n)';
-        SPW(a).Ipost = dpost(1:n)';
-        SPW(a).Channel = repmat(D.chanlabels(chs(a)),size(ni(1:n)))';
-        SPW(a).Phase = repmat(runs(nrun),size(ni(1:n)))';
-        SPW(a).cond = repmat({['SPW_' runs{nrun} '_' D.chanlabels{chs(a)}]},size(ni(1:n)))';
-        SPW(a).prec_cond = strcat({[D.chanlabels{chs(a)} '_' runs{nrun}] },num2str([1:length(ni(1:n))]'));
-        toc
     end
     D.SPW.(runs{nrun}) =SPW;
 end
@@ -182,7 +124,7 @@ for a = 1:D.nchannels
     end
     
     D.SPW.results.N(a,:) = [numel(D.SPW.trough(a).i) numel(D.SPW.peak(a).i)];
-    D.SPW.results.Nr(a,:) = D.SPW.results.N(a,:)./max(D.time); 
+    D.SPW.results.Nr(a,:) = D.SPW.results.N(a,:)./max(D.time);
     D.SPW.results.Vasymmetry(a,1)=nanmean(abs(D.SPW.trough(a).Vmax))/nanmean(abs(D.SPW.peak(a).Vmax));
     D.SPW.results.Pasymmetry(a,1)=nanmean(D.SPW.trough(a).Pfull)/nanmean(D.SPW.peak(a).Pfull);
     D.SPW.results.STDasymmetry(a,1)=nanstd(D.SPW.trough(a).Pfull)/nanstd(D.SPW.peak(a).Pfull);
@@ -192,6 +134,10 @@ for a = 1:D.nchannels
     D.SPW.results.Trise(a,:) = [nanmean(D.SPW.trough(a).Trise) nanmean(D.SPW.peak(a).Trise)];
     D.SPW.results.Pfull(a,:) = [nanmean(D.SPW.trough(a).Pfull) nanmean(D.SPW.peak(a).Pfull)];
     D.SPW.results.Imean(a,:) = [nanmean(D.SPW.trough(a).Imean) nanmean(D.SPW.peak(a).Imean)];
+    D.SPW.results.Ifanofactor(a,:)=[std(D.SPW.trough(a).Imean.^2)/nanmean(D.SPW.trough(a).Imean) std(D.SPW.peak(a).Imean.^2)/nanmean(D.SPW.peak(a).Imean)];
+    D.SPW.results.Icov(a,:)=[std(D.SPW.trough(a).Imean)/nanmean(D.SPW.trough(a).Imean) std(D.SPW.peak(a).Imean)/nanmean(D.SPW.peak(a).Imean)];
+    D.SPW.results.Ifanoratio(a,:) =  log(nanmax([D.SPW.results.Ifanofactor(a,1)./D.SPW.results.Ifanofactor(a,2),D.SPW.results.Ifanofactor(a,2)./D.SPW.results.Ifanofactor(a,1)]));
+    D.SPW.results.Icovratio(a,:) =  log(nanmax([D.SPW.results.Icov(a,1)./D.SPW.results.Icov(a,2),D.SPW.results.Icov(a,2)./D.SPW.results.Icov(a,1)]));
     D.SPW.results.Vsharpness(a,:) =  [nanmean(D.SPW.trough(a).Vsharpness) nanmean(D.SPW.peak(a).Vsharpness)];
     D.SPW.results.Vrisesteepness(a,:) =  [nanmean(D.SPW.trough(a).Vrisesteepness) nanmean(D.SPW.peak(a).Vrisesteepness)];
     D.SPW.results.Vdecaysteepness(a,:) =  [nanmean(D.SPW.trough(a).Vdecaysteepness) nanmean(D.SPW.peak(a).Vdecaysteepness)];
@@ -200,7 +146,7 @@ for a = 1:D.nchannels
     D.SPW.results.Vsloperatio(a,:) = [nanmean(D.SPW.trough(a).Vsloperatio) nanmean(D.SPW.peak(a).Vsloperatio)];
     
     alltimes=[alltimes;D.time(D.SPW.peak(a).i)';D.time(D.SPW.trough(a).i)'];
-    allconds = [allconds;D.SPW.peak(a).cond;D.SPW.trough(a).cond];  
+    allconds = [allconds;D.SPW.peak(a).cond;D.SPW.trough(a).cond];
     T=[T;struct2table(D.SPW.peak(a));struct2table(D.SPW.trough(a))];
 end
 
@@ -256,8 +202,8 @@ D.SPW.fsample = D.fsample;
 D.SPW = wjn_recon_spwpeaks(D.SPW);
 SPW = D.SPW;
 save(D)
-[fpath,fname] = wjn_recon_fpath(D.fullfile,'SPW')
+[fpath,fname] = wjn_recon_fpath(D.fullfile,'SPW');
 writetable(T,fullfile(fpath,['SPW_table_' fname '.csv']))
-
+save(fullfile(fpath,['SPW_' fname '.mat']),'SPW');
 
 

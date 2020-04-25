@@ -27,7 +27,7 @@ elseif strcmp(mode,'keep')
 end
 
 fname = D.fname;
-D=wjn_spm_copy(D.fullfile,['a' fname]);
+D=wjn_spm_copy(D.fullfile,['a' fname]);del=D;
 try
 anames = fieldnames(D.analog);
 for a = 1:length(anames)
@@ -67,3 +67,4 @@ end
 save(nD)
 
 D=nD;
+del.delete()
