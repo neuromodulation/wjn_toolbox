@@ -1,4 +1,4 @@
-function [mm,ti,p]=wjn_plot_spw(time,data,chanlabels,plotit,thresh)
+function [mm,ti,p]=wjn_plot_spw(time,data,chanlabels,thresh)
 
 if ~exist('plotit','var')
     plotit=1;

@@ -1,8 +1,15 @@
 function [s, v, ov]=wjn_plot_colored_spheres(mni,v,r, cmap)
+
+if ~exist('v','var') || isempty(v)
+    v = ones(size(mni,1),1);
+end
+
 ov = v;
 if ~exist('r','var')
     r=1;
 end
+
+
 
 [x,y,z]=sphere;
 

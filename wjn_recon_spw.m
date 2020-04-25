@@ -1,18 +1,8 @@
-function [D,SPW,T]=wjn_recon_spw(filename,prominence,distance,freqband)
+function [D,SPW,T]=wjn_recon_spw(filename,freqband)
 disp('RECONSTRUCT WAVEFORM FEATURES.')
-
-if ~exist('prominence','var')
-    prominence = 0.1;
-end
-
 
 
 D=spm_eeg_load(filename);
-
-
-if ~exist('distance','var')
-    distance = 1;
-end
 
 
 SPW=[];
@@ -50,8 +40,8 @@ for nrun = 1:2
         end
         
         
-        [m,i]=findpeaks(pdata,'MinPeakWidth',round(0.012*D.fsample));   %figure,plot(D.time,pdata),hold on,scatter(D.time(i),pdata(i))
- 
+        [m,ti]=findpeaks(pdata,D.fsample,'MinPeakWidth',0.01);   %figure,plot(D.time,pdata),hold on,scatter(D.time(i),pdata(i))
+        i=find(ismember(D.time,ti));
         irm= [find(i(D.time(i)<1)),find(D.time(i)>(D.time(D.nsamples)-1))];
         i(irm)=[];
         n=0;
@@ -263,7 +253,6 @@ D.SPW.avg.conditions = uconds;
 D.SPW.avg.time = tspw;
 D.SPW.chanlabels = D.chanlabels;
 D.SPW.fsample = D.fsample;
-D.SPW.prominence = prominence;
 D.SPW = wjn_recon_spwpeaks(D.SPW);
 SPW = D.SPW;
 save(D)
