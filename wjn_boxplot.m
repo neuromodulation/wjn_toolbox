@@ -33,7 +33,7 @@ l = size(y,2);
 % if ~exist('x','var') || isempty(x)
 % x = 1:l;
 % end
-    b=boxplot(y,x,'symbol','k','Whisker',1,'width',bwidth,'boxstyle','filled','color','k','medianstyle','line','positions',x);
+    b=boxplot(y,x,'Whisker',1,'width',bwidth,'boxstyle','filled','color','k','medianstyle','line','positions',x);
        hold on
 for a=1:l
 %     if strcmp(oc,'c')

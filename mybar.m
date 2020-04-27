@@ -43,7 +43,7 @@ for a=1:l
     if iscell(y)
         ny(1,a) = nanmean(y{:,a},1);
         my(a)= nanmean(y{:,a},1);
-        sy(1,a) = sem(y{:,a});
+        sy(1,a) = nanstd(y{:,a});
 
     else
         ny(1,a) = nanmean(y(:,a),1);

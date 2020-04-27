@@ -9,6 +9,7 @@ if ~exist('color','var')
 else 
     color = squeeze(color);
 end
+
 try
     try
         s=export(gifti(filename));
