@@ -40,25 +40,84 @@ for nrun = 1:2
         end
         
         
-        [m,ti]=findpeaks(pdata,D.fsample,'MinPeakWidth',0.012);   %figure,plot(D.time,pdata),hold on,scatter(D.time(i),pdata(i))
-        i=find(ismember(D.time,ti));
-        irm= [find(i(D.time(i)<1)),find(D.time(i)>(D.time(D.nsamples)-1))];
-        i(irm)=[];
-        n=0;
-        dd=nan(1,length(i)-1);
-        vtrough = dd;dpost=dd;ni=dd;vpre=dd;tdecay=dd;vdecay=dd;ppre=dd;
-        dpre=dd;nipre=dd;vpost=dd;trise=dd;ppost=dd;vrise=dd;nipost=dd;pfull=dd;tfull=dd;dmean=dd;
-        wv=nan(length(i)-1,length(-iev-1:iev));sharpness=dd;risesteepness=dd;
-        decaysteepness=dd;sloperatio=dd;risedecayasymmetry=dd;
-        for b = 2:length(i)-1
-            n=n+1;
-            cci=i(b);
-            pci=cci-mssamples:cci+mssamples;
-            [m(b),hfi] = max(data(pci));
-            cci = cci+hfi-mssamples-1;
-            vtrough(n) = -m(b);
-            i(b)=cci;
-            ni(n)=cci;
+        [m,i]=findpeaks(pdata,'MinPeakWidth',round(0.012*D.fsample));   %figure,plot(D.time,pdata),hold on,scatter(D.time(i),pdata(i))
+        if ~isempty(i)
+            irm= [find(i(D.time(i)<1)),find(D.time(i)>(D.time(D.nsamples)-1))];
+            i(irm)=[];
+            n=0;
+            dd=nan(1,length(i)-1);
+            vtrough = dd;dpost=dd;ni=dd;vpre=dd;tdecay=dd;vdecay=dd;ppre=dd;
+            dpre=dd;nipre=dd;vpost=dd;trise=dd;ppost=dd;vrise=dd;nipost=dd;pfull=dd;tfull=dd;dmean=dd;
+            wv=nan(length(i)-1,length(-iev-1:iev));sharpness=dd;risesteepness=dd;
+            decaysteepness=dd;sloperatio=dd;risedecayasymmetry=dd;
+            for b = 2:length(i)-1
+                n=n+1;
+                cci=i(b);
+                pci=cci-mssamples:cci+mssamples;
+                [m(b),hfi] = max(data(pci));
+                cci = cci+hfi-mssamples-1;
+                vtrough(n) = -m(b);
+                i(b)=cci;
+                ni(n)=cci;
+                
+                dpre(n) = (cci-i(b-1))./D.fsample*1000;
+                dpost(n) = (i(b+1)-cci)./D.fsample*1000;
+                
+                t0 = 1000*D.time(cci);
+                
+                if cci>D.fsample && cci<D.nsamples-D.fsample
+                    cclimp = D.fsample;
+                    cclimn = D.fsample;
+                elseif cci<D.fsample
+                    cclimn =cci-1;
+                    cclimp = D.fsample;
+                else
+                    cclimn=D.fsample-1;
+                    cclimp = D.nsamples-cci-1;
+                end
+                
+                nin = cci-1:-1:cci-cclimn;
+                [fmin,fin]=findpeaks(-data(nin),'Npeaks',1);
+                if isempty(fin)
+                    [~,fin]=min(data(nin));
+                end
+                pci=nin(fin)-mssamples:nin(fin)+mssamples;
+                pci(pci>=cci)=[];
+                [minn,in] = min(data(pci));
+                cin=pci(in);
+                vpre(n)= -minn;
+                tdecay(n) = t0-D.time(cin)*1000;
+                ppre(n) = -minn-vtrough(n);
+                vdecay(n) = ppre(n)/tdecay(n);
+                nipre(n) = cin;
+                
+                
+                nip = cci+1:cci+cclimp;
+                [~,fip]=findpeaks(-data(nip),'Npeaks',1);
+                if isempty(fip)
+                    [~,fip]=min(data(nip));
+                end
+                pci=nip(fip)-mssamples:nip(fip)+mssamples;
+                pci(pci<=cci)=[];
+                [mip,ip] = min(data(pci));
+                cip=pci(ip);
+                vpost(n) = -mip;
+                trise(n) = D.time(cip)*1000-t0;
+                ppost(n) = -mip-vtrough(n);
+                vrise(n) = ppost(n)/trise(n);
+                nipost(n) = cip;
+                
+                pfull(n) = ppre(n)+ppost(n);
+                tfull(n) = tdecay(n)+trise(n);
+                dmean(n) = (dpre(n)+dpost(n))/2;
+                wv(n,:) = data(cci-iev-1:cci+iev);
+                
+                sharpness(n) = data(cci)-nanmean(data([cci-ish:cci-1 cci+1:cci+ish]));
+                risesteepness(n) = max(diff(data(cin:cci)));
+                decaysteepness(n) = -min(diff(data(cci:cip)));
+                sloperatio(n) = risesteepness(n)-decaysteepness(n);
+                risedecayasymmetry(n) = trise(n)/tfull(n);
+            end
             
             
             disp(['CH=' num2str(a) '/' num2str(length(chs))])
