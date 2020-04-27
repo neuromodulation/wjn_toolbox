@@ -74,3 +74,5 @@ COH.pow = permute(pow,[2,3,1]);
 COH.mpow = mpow;
 D.COH=COH;
 save(D)
+[fpath,fname] = wjn_recon_fpath(D.fullfile,'POW');
+save(fullfile(fpath,['POW_' fname '.mat']),'COH');
