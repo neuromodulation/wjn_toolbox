@@ -7,10 +7,6 @@ function f=wjn_searchfibers(fname,mni,connectome,mm,cont)
 % will be found.
 
 
-
-
-[lf,lt]=leadf;
-addpath(genpath(lf));
 if ~exist('cont','var')
     cont = 1;
 end
@@ -41,6 +37,9 @@ if ischar(mni)
     nregions = 1;
 elseif iscell(mni)
     nregions = length(mni);
+else
+    nregions = 1;
+    cmni=mni;
 end
 
 if ~exist('mm','var')

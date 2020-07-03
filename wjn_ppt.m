@@ -44,7 +44,7 @@ else
     p=find(sort(md,'descend')==nanmean(d(:,1)))/length(md);
 end
 
-
+p=2*p;
 if isempty(p)
     p = nan;
 end

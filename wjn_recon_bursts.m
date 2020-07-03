@@ -24,9 +24,11 @@ for a = 1:D.nchannels
     else
         data = smooth(abs(hilbert(data))',round(D.fsample*0.25));
     end
+    data([1:D.fsample end-D.fsample+1:end])=0;
     data = wjn_zscore(data);
+    
     alldata(a,:)=data;
-    d = mydiff(squeeze(data)>=prctile(data,75));d([1:D.fsample length(d)-D.fsample:length(d)])=0;
+    d = mydiff(squeeze(data)>=prctile(data,75));d([1:D.fsample end-D.fsample+1:end])=0;
     
     i = find(d==1);
     s = find(d==-1);

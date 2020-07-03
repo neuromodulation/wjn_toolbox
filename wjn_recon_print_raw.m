@@ -26,11 +26,12 @@ figone(40,40)
 print(fullfile(fpath,['raw_' fname]),'-dpng','-r90');
 savefig(fullfile(fpath,['raw_' fname '.fig']))
 close
-
-ix = randi(round(D.time(end)-10)-1);
-figure('visible','off')
-wjn_plot_raw_signals(D.time(D.indsample(ix):D.indsample(ix+10)),D(:,D.indsample(ix):D.indsample(ix+10)),strrep(D.chanlabels,'_',' '));
-xlabel('Time [s]')
-figone(40,40)
-print(fullfile(fpath,['raw_zoom_' fname '.png']),'-dpng','-r90');
-close
+if D.time(end)>20
+    ix = randi(round(D.time(end)-10)-1);
+    figure('visible','off')
+    wjn_plot_raw_signals(D.time(D.indsample(ix):D.indsample(ix+10)),D(:,D.indsample(ix):D.indsample(ix+10)),strrep(D.chanlabels,'_',' '));
+    xlabel('Time [s]')
+    figone(40,40)
+    print(fullfile(fpath,['raw_zoom_' fname '.png']),'-dpng','-r90');
+    close
+end

@@ -14,7 +14,7 @@ disp(fname);disp(fpath);
 %% PRINT RAW DATA
 wjn_recon_print_raw(D.fullfile);
 %% WAVEFORM CHARACTERIZATION
-[D,SPW] = wjn_recon_spw(D);
+[D,SPW] = wjn_recon_spw(D,[7 35]);
 wjn_recon_print_spw_raw(D)
 wjn_recon_print_spw(D)
 %% BURST CHARACTERIZATION
