@@ -2,7 +2,7 @@ function cname=wjn_spherical_roi(fname,mni,r,template)
 
 if ~exist('template','var')
     
-    Vol=ea_load_nii(fullfile(ea_getearoot,'templates','space','MNI_ICBM_2009b_NLIN_ASYM','T1.nii'));
+    Vol=ea_load_nii(fullfile(spm('dir'),'canonical','single_subj_T1.nii'));
     nii=Vol.img;
     nii(:)=nan;
     voxmm = Vol.voxsize;
@@ -60,7 +60,8 @@ else
             nii(xix(2:end),yiy,ziz)=S(2:end,:,:);
         end
     end
-    nii(nii~=1)=nan;
+    nii(isnan(nii))=0;
+    nii(nii<0.01)=0;
     Vol.dt =[16,0];
     [fdir,fname]=fileparts(fname);
     Vol.fname=fullfile(fdir,[fname '.nii']);
