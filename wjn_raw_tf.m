@@ -4,5 +4,6 @@ nfft = round(timewindow/fs*1000);
 timestep = round(timestep/fs*1000);
 [~,f,t,tf]=spectrogram(data,hann(nfft), ...
     nfft-timestep,nfft,fs,'yaxis','power');
-
-rtf = wjn_raw_baseline(tf,f);
+try
+    rtf = wjn_raw_baseline(tf,f);
+end

@@ -1,101 +1,70 @@
 function cname=wjn_spherical_roi(fname,mni,r,template)
 
 if ~exist('template','var')
+    
+    Vol=ea_load_nii(fullfile(ea_getearoot,'templates','space','MNI_ICBM_2009b_NLIN_ASYM','T1.nii'));
+    nii=Vol.img;
+    nii(:)=nan;
+    voxmm = Vol.voxsize;
+    for a=1:size(mni,1)
+        X= mni(a,1); Y = mni(a,2); Z = mni(a,3);
+        XYZ=[X,Y,Z,ones(length(X),1)]';
+        XYZ=Vol.mat\XYZ; % to voxel space.
+        XYZ=(XYZ(1:3,:)');
+        
+        xe = XYZ(1)-round(2*r/voxmm(1)):XYZ(1)+round(2*r/voxmm(1));
+        ye = XYZ(2)-round(2*r/voxmm(2)):XYZ(2)+round(2*r/voxmm(2));
+        ze = XYZ(3)-round(2*r/voxmm(3)):XYZ(3)+round(2*r/voxmm(3));
+        
+        
+        [xx yy zz] = meshgrid(1:length(xe),1:length(ye),1:length(ze));
+        S = round(sqrt((xx-2*r/voxmm(1)).^2+(yy-2*r/voxmm(2)).^2+(zz-2*r/voxmm(3)).^2)<=r/voxmm(1));
+        xix=squeeze(xx(1,:,1)+round(XYZ(1)-2*r/voxmm(1)));
+        yiy=squeeze(yy(:,1,1)+round(XYZ(2)-2*r/voxmm(1)));
+        ziz=squeeze(zz(1,1,:)+round(XYZ(3)-2*r/voxmm(1)));
+        nii(xix,yiy,ziz)=S;
+    end
+    nii(nii~=1)=0;
+    nii=nii(1:Vol.dim(1),1:Vol.dim(2),1:Vol.dim(3));
+    Vol.dt =[16,0];
+    [fdir,fname]=fileparts(fname);
+    Vol.fname=fullfile(fdir,[fname '.nii']);
+    spm_write_vol(Vol,nii);
+    
 
-try
-[~,leadt]=leadf;
-Vol=ea_load_nii(fullfile(leadt,'bb.nii'));
-nii=Vol.img;
-nii(:)=nan;
-voxmm = Vol.voxsize;
-for a=1:size(mni,1)
-    X= mni(a,1); Y = mni(a,2); Z = mni(a,3); 
-    XYZ=[X,Y,Z,ones(length(X),1)]';
-    XYZ=Vol.mat\XYZ; % to voxel space.
-    XYZ=(XYZ(1:3,:)');
-    
-    xe = XYZ(1)-round(2*r/voxmm(1)):XYZ(1)+round(2*r/voxmm(1));
-    ye = XYZ(2)-round(2*r/voxmm(2)):XYZ(2)+round(2*r/voxmm(2));
-    ze = XYZ(3)-round(2*r/voxmm(3)):XYZ(3)+round(2*r/voxmm(3));
-
-    
-    [xx yy zz] = meshgrid(1:length(xe),1:length(ye),1:length(ze));
-    S = round(sqrt((xx-2*r/voxmm(1)).^2+(yy-2*r/voxmm(2)).^2+(zz-2*r/voxmm(3)).^2)<=r/voxmm(1));
-    xix=squeeze(xx(1,:,1)+round(XYZ(1)-2*r/voxmm(1)));
-    yiy=squeeze(yy(:,1,1)+round(XYZ(2)-2*r/voxmm(1)));
-    ziz=squeeze(zz(1,1,:)+round(XYZ(3)-2*r/voxmm(1)));
-    nii(xix,yiy,ziz)=S;
-end
-nii(nii~=1)=nan;
-Vol.dt =[16,0];
-[fdir,fname]=fileparts(fname);
-Vol.fname=fullfile(fdir,[fname '.nii']);
-spm_write_vol(Vol,nii);
-
-catch
-    
-[~,leadt]=leadf;
-Vol=ea_load_nii(fullfile(leadt,'t1.nii'));
-nii=Vol.img;
-nii(:)=nan;
-voxmm = Vol.voxsize;
-for a=1:size(mni,1)
-    X= mni(a,1); Y = mni(a,2); Z = mni(a,3); 
-    XYZ=[X,Y,Z,ones(length(X),1)]';
-    XYZ=Vol.mat\XYZ; % to voxel space.
-    XYZ=(XYZ(1:3,:)');
-    
-    xe = XYZ(1)-round(2*r/voxmm(1)):XYZ(1)+round(2*r/voxmm(1));
-    ye = XYZ(2)-round(2*r/voxmm(2)):XYZ(2)+round(2*r/voxmm(2));
-    ze = XYZ(3)-round(2*r/voxmm(3)):XYZ(3)+round(2*r/voxmm(3));
-
-    
-    [xx yy zz] = meshgrid(1:length(xe),1:length(ye),1:length(ze));
-    S = round(sqrt((xx-2*r/voxmm(1)).^2+(yy-2*r/voxmm(2)).^2+(zz-2*r/voxmm(3)).^2)<=r/voxmm(1));
-    xix=squeeze(xx(1,:,1)+round(XYZ(1)-2*r/voxmm(1)));
-    yiy=squeeze(yy(:,1,1)+round(XYZ(2)-2*r/voxmm(1)));
-    ziz=squeeze(zz(1,1,:)+round(XYZ(3)-2*r/voxmm(1)));
-    nii(xix,yiy,ziz)=S;
-    nii(nii~=1)=nan;
-Vol.dt =[16,0];
-[fdir,fname]=fileparts(fname);
-Vol.fname=fullfile(fdir,[fname '.nii']);
-spm_write_vol(Vol,nii);
-end
-end
 
 else
     Vol=ea_load_nii(template);
-nii=Vol.img;
-nii(:)=nan;
-voxmm = Vol.voxsize;
-for a=1:size(mni,1)
-    X= mni(a,1); Y = mni(a,2); Z = mni(a,3); 
-    XYZ=[X,Y,Z,ones(length(X),1)]';
-    XYZ=Vol.mat\XYZ; % to voxel space.
-    XYZ=(XYZ(1:3,:)');
-    
-    xe = XYZ(1)-round(2*r/voxmm(1)):XYZ(1)+round(2*r/voxmm(1));
-    ye = XYZ(2)-round(2*r/voxmm(2)):XYZ(2)+round(2*r/voxmm(2));
-    ze = XYZ(3)-round(2*r/voxmm(3)):XYZ(3)+round(2*r/voxmm(3));
-
-    
-    [xx yy zz] = meshgrid(1:length(xe),1:length(ye),1:length(ze));
-    S = round(sqrt((xx-2*r/voxmm(1)).^2+(yy-2*r/voxmm(2)).^2+(zz-2*r/voxmm(3)).^2)<=r/voxmm(1));
-    xix=squeeze(xx(1,:,1)+round(XYZ(1)-2*r/voxmm(1)));
-    yiy=squeeze(yy(:,1,1)+round(XYZ(2)-2*r/voxmm(1)));
-    ziz=squeeze(zz(1,1,:)+round(XYZ(3)-2*r/voxmm(1)));
-    try
-    nii(xix,yiy,ziz)=S;
-    catch
-    nii(xix(2:end),yiy,ziz)=S(2:end,:,:);
+    nii=Vol.img;
+    nii(:)=nan;
+    voxmm = Vol.voxsize;
+    for a=1:size(mni,1)
+        X= mni(a,1); Y = mni(a,2); Z = mni(a,3);
+        XYZ=[X,Y,Z,ones(length(X),1)]';
+        XYZ=Vol.mat\XYZ; % to voxel space.
+        XYZ=(XYZ(1:3,:)');
+        
+        xe = XYZ(1)-round(2*r/voxmm(1)):XYZ(1)+round(2*r/voxmm(1));
+        ye = XYZ(2)-round(2*r/voxmm(2)):XYZ(2)+round(2*r/voxmm(2));
+        ze = XYZ(3)-round(2*r/voxmm(3)):XYZ(3)+round(2*r/voxmm(3));
+        
+        
+        [xx yy zz] = meshgrid(1:length(xe),1:length(ye),1:length(ze));
+        S = round(sqrt((xx-2*r/voxmm(1)).^2+(yy-2*r/voxmm(2)).^2+(zz-2*r/voxmm(3)).^2)<=r/voxmm(1));
+        xix=squeeze(xx(1,:,1)+round(XYZ(1)-2*r/voxmm(1)));
+        yiy=squeeze(yy(:,1,1)+round(XYZ(2)-2*r/voxmm(1)));
+        ziz=squeeze(zz(1,1,:)+round(XYZ(3)-2*r/voxmm(1)));
+        try
+            nii(xix,yiy,ziz)=S;
+        catch
+            nii(xix(2:end),yiy,ziz)=S(2:end,:,:);
+        end
     end
-end
-nii(nii~=1)=nan;
-Vol.dt =[16,0];
-[fdir,fname]=fileparts(fname);
-Vol.fname=fullfile(fdir,[fname '.nii']);
-spm_write_vol(Vol,nii(1:Vol.dim(1),1:Vol.dim(2),1:Vol.dim(3)));
+    nii(nii~=1)=nan;
+    Vol.dt =[16,0];
+    [fdir,fname]=fileparts(fname);
+    Vol.fname=fullfile(fdir,[fname '.nii']);
+    spm_write_vol(Vol,nii(1:Vol.dim(1),1:Vol.dim(2),1:Vol.dim(3)));
 end
 
 
@@ -113,20 +82,20 @@ end
 % jobs{1}=matlabbatch;
 % spm_jobman('run',jobs);
 % clear jobs matlabbatch
-% 
+%
 % delete(Vol.fname)
 
-% 
+%
 % cname=wjn_convert2mni_voxel_space(fullfile(fdir,['s' fname '.nii']));
 % spm_imcalc(cname,cname,'i1>0.0001')
 cname=fullfile(fdir,[fname '.nii'])
 % ea_crop_nii(cname)
-% 
+%
 % delete(fullfile(fdir,['s' fname '.nii']))
 % delete(fullfile(fdir,[fname '.nii']));
 
 % cfile = cname;
-% if exist('mask','var') 
+% if exist('mask','var')
 %     if strcmp(mask,'GPi')
 %         mask = fullfile(leadt,'cmni_GPi.nii');
 %             elseif strcmp(mask,'GPe')
@@ -145,7 +114,7 @@ cname=fullfile(fdir,[fname '.nii'])
 % % Beta
 % clear
 % load mni mni v
-% 
+%
 % v= v(:,2);
 % v(v>100)=[];
 % inan = isnan(v);
@@ -166,14 +135,14 @@ cname=fullfile(fdir,[fname '.nii'])
 % bb(1,:)=[round(min(XYZ(:,1)))-round(increase_size/2),round(max(XYZ(:,1)))+round(increase_size/2)];
 % bb(2,:)=[round(min(XYZ(:,2)))-round(increase_size*2),round(max(XYZ(:,2)))+round(increase_size*2)];
 % bb(3,:)=[round(min(XYZ(:,3)))-increase_size,round(max(XYZ(:,3)))+increase_size];
-% 
+%
 % F = scatteredInterpolant(XYZ(:,1),XYZ(:,2),XYZ(:,3),double(V{side}));
-% 
+%
 % F.ExtrapolationMethod='none';
 % xix{side}=bb(1,1):bb(1,2); yix{side}=bb(2,1):bb(2,2); zix{side}=bb(3,1):bb(3,2);
 % nii{side}(xix{side},yix{side},zix{side})=F({xix{side},yix{side},zix{side}});
-% 
-% 
+%
+%
 % Vol.fname=['beta.nii'];
 % spm_write_vol(Vol,nii{1});
 % matlabbatch{1}.spm.spatial.smooth.data = {Vol.fname};
@@ -191,7 +160,7 @@ cname=fullfile(fdir,[fname '.nii'])
 % global st
 % % spm_check_registration('new_gpi_mask.nii',fullfile(maskdir,mask));
 % spm_check_registration(fullfile(mni_dir,mni_i),'sbeta.nii');
-% 
+%
 % %%
 % cc=colorlover(7,0);
 % cc(1,:) = cc(1,:);
@@ -206,20 +175,20 @@ cname=fullfile(fdir,[fname '.nii'])
 %     td(a,1) = wjn_distance(mni(a,:),t_mni_max);
 %     bd(a,1) = wjn_distance(mni(a,:),b_mni_max);
 % end
-% 
-% 
+%
+%
 % figure
 % subplot(1,2,1);
 % title('theta')
 % [br,bp]=wjn_corr_plot(tv,td,cc(1,:));
-% 
+%
 % subplot(1,2,2);
 % title('beta')
 % [tr,tp]=wjn_corr_plot(bv,bd,cc(2,:));
-% 
+%
 % [r,p]=corr(bv,bd,'type','spearman','rows','pairwise')
 % [r,p]=corr(tv,td,'type','spearman','rows','pairwise')
-% 
-% 
-% 
-%         
+%
+%
+%
+%

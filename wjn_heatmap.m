@@ -1,7 +1,7 @@
 function wjn_heatmap(fname,mni,v,template,smoothingkernel)
 %% function wjn_heatmap(fname,mni,v,template)
 
-[~,leadt]=leadf;
+%[~,leadt]=leadf;
 
 inan = [find(isnan(v));find(isnan(mni(:,1)))];
 if ~isempty(inan)
@@ -13,11 +13,11 @@ side = 1;
 X{1} = mni(:,1); Y{1} = mni(:,2); Z{1} = mni(:,3); V{1} = v;
 XYZ=[X{side},Y{side},Z{side},ones(length(X{side}),1)]';
 % Vol=spm_vol(fullfile(leadt,'bb.nii')); %% Was ist bb.nii
-if ~exist('template','var')
-Vol=spm_vol(fullfile(leadt,'t2.nii')); %% Was ist bb.nii
-else
+% if ~exist('template','var')
+% Vol=spm_vol(fullfile(,'t2.nii')); %% Was ist bb.nii
+% else
     Vol=spm_vol(template);
-end
+% end
 nii{side}=spm_read_vols(Vol);
 nii{side}(:)=nan;
 XYZ=[X{side},Y{side},Z{side},ones(length(X{side}),1)]';
