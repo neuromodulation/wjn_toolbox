@@ -44,6 +44,14 @@ for a = 1:length(measures)
             bandpeaks.(measures{a}).freq(b,c) = COH.f(i(mi));
             bandpeaks.(measures{a}).amp(b,c) = mm;
             bandpeaks.(measures{a}).width(b,c) = w(mi);
+         else
+            bandpeaks.(measures{a}).npeaks(b,c) = nan;
+            bandpeaks.(measures{a}).allfreqs{b,c} = nan;
+            bandpeaks.(measures{a}).allamps{b,c} = nan;
+            bandpeaks.(measures{a}).allwidths{b,c} = nan;
+            bandpeaks.(measures{a}).freq(b,c) = nan;
+            bandpeaks.(measures{a}).amp(b,c) = nan;
+            bandpeaks.(measures{a}).width(b,c) = nan;
          end
         end
     end

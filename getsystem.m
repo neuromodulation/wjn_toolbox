@@ -108,5 +108,5 @@ elseif exist('D:\Users\movdis\Dropbox (Personal)\matlab\','dir')
     
     
 else
-    mf = 'C:\wjn_toolbox';
+    mf = 'C:\code\wjn_toolbox';
 end

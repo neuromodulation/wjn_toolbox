@@ -14,6 +14,8 @@ franges = [lhz:lhz:D.fsample/2];
 cfg = [];
 cfg.dftfilter = 'yes';
 cfg.dftfreq = franges;
+% cfg.bsfilter = 'yes';
+% cfg.bsfreq = [lhz-2 lhz+2];
 cfg.channel = chans;
 data = ft_preprocessing(cfg,D.ftraw(0));
 

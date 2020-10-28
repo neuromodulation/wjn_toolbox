@@ -3,7 +3,7 @@ disp('RECONSTRUCT WAVEFORM FEATURES.')
 D=spm_eeg_load(filename);
 
 
-
+D=timeonset(D,0);
 
 SPW=[];
 chs = 1:D.nchannels;

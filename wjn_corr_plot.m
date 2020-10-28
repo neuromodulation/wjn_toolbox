@@ -1,4 +1,4 @@
-function [rho,prho,r,p,s]=wjn_corr_plot(d1,d2,c,perm)
+function [rho,prho,r,p,s,pl]=wjn_corr_plot(d1,d2,c,perm)
 
 if ~exist('perm','var')
     perm=1;
@@ -28,7 +28,7 @@ if ~exist('type','var')
     type = 'spearman';
 end
 
-if ~exist('c','var')
+if ~exist('c','var') || isempty(c)
     c = [.2 .2 .2];
 end
 if perm

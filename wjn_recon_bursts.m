@@ -16,8 +16,8 @@ iev = round(0.25*D.fsample);
 for a = 1:D.nchannels
     tic
     data=D(a,:);
-    data(data==0)=nan;
-    good = ~isnan(data);
+%     data(data==0)=nan;
+%     good = ~isnan(data);
     
     if exist('freqband','var')
         data = smooth(abs(hilbert(ft_preproc_bandpassfilter(data,D.fsample,freqband))),round(D.fsample*0.25));

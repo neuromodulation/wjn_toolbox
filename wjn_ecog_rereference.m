@@ -6,6 +6,7 @@ ech = ci('ECOG',D.chanlabels);
 
 for a = 1:length(ech)
     chans{a}=D.chanlabels{ech(a)}(~isstrprop(D.chanlabels{ech(a)},'digit'));
+    nums{a} = D.chanlabels{ech(a)}(isstrprop(D.chanlabels{ech(a)},'digit'))
 end
 
 strips = unique(chans);
@@ -15,7 +16,7 @@ allavgdata=[];
 allbpdata=[];
 for ns = 1:length(strips)
     ech = ci(strips{ns},D.chanlabels);
-    cavgchans= [strcat(D.chanlabels(ech),'_cavg'),[strips{ns} '_cavg']];
+    cavgchans= [strcat({'c_'},D.chanlabels(ech)),['cavg_' strips{ns}]];
     cavgdata=[];
     bpdata=[];
     bpchans={};
@@ -29,7 +30,7 @@ for ns = 1:length(strips)
     for a = 1:length(ech)-1
         if str2num(chs{a}(end))<str2num(chs{a+1}(end))
             nbipolar=nbipolar+1;
-            bpchans{nbipolar} = [strips{ns} chs{a}(end) chs{a+1}(end)];
+            bpchans{nbipolar} = ['bip_' strips{ns} nums{a} '-' nums{a+1}];
             bpdata(nbipolar,:) = D(ech(a),:)-D(ech(a+1),:);
         end
     end

@@ -11,7 +11,7 @@ if ~exist('BST','var')
     try
         BST = D.BST;
     catch
-        [D,BST]=wjn_recon_bursts(D.fullfile);
+        [D,BST]=wjn_recon_bursts(D.fullfile,[8 30]);
     end
 end
 
