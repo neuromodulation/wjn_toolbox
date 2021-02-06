@@ -3,6 +3,7 @@ function [p,i]=mypcluster(P,pthresh,showplot)
 % P = vector of P-values
 % pthresh = threshold (default p<=0.05)
 
+
 P = 1-P;
 
 if ~exist('pthresh','var') || isempty(pthresh);

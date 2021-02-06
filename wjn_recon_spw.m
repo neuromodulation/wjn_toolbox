@@ -23,8 +23,8 @@ for nrun = 1:2
         tic
         keep('freqband','ish','iev','save_to_D','T','runs','nrun','a','filename','D','SPW','filtfreq','chs','alltimes','allconds','mssamples')
         data=D(a,:);
-        data(data==0)=nan;
-        good = ~isnan(data);
+%         data(data==0)=nan;
+        good = data~=0;
         
         
         if nrun == 1
