@@ -1,17 +1,17 @@
 function D = wjn_import_AO(filename,channels)
 
-
-
+[fdir,fname,ext]=fileparts(filename);
 d = load(filename);
 fields = fieldnames(d);
 data =[];
 
 if ~exist('channels','var')
+    %% read channel names, remove additional analog channels
     channels = fields(ci('_KHz_orig',fields)-2);
     channels(ci('CADD_',channels))=[];
     
-    an = ci('ANAL',channels);
-
+    %% find potentially empty channels and check for signal
+    an = ci({'ANAL','ACC','EMG'},channels); 
     for a =1:length(an)
         if numel((unique(d.(channels{an(a)}))))<100
             rm(a)=an(a);
@@ -21,15 +21,11 @@ if ~exist('channels','var')
     end
     rm(rm==0)=[];
     channels(rm)=[];
+    %% get chanlabels from original names with a lookup table based on our conventions
+
+    [chanlabels,chantypes] = wjn_chan_converter(channels);
     
-    for a =1:length(channels)
-        tmp = strsplit(channels{a},'__');
-        if tmp{end}(1:5) == 'CANAL'
-            chanlabels{a} = strrep(tmp{end}(2:end),'_IN_','');
-        else
-            chanlabels{a} = strrep(tmp{end},'_','');
-        end
-    end
+   
 else
     chanlabels=channels;
 end
@@ -57,7 +53,8 @@ for a = 1:length(iSF)
     info.(fields{iSF(a)}) = d.(fields{iSF(a)});
 end
 
-D=wjn_import_rawdata(['spmeeg_' filename],double(data),chanlabels, fsample);
+D=wjn_import_rawdata(fullfile(fdir,['spm_' fname ext]),double(data),chanlabels, fsample);
+   
 info.T = T;
 D.AO = info;
 save(D)
@@ -73,32 +70,12 @@ if isfield(D.AO,'CStimMarker_1')
     D.AO.STIM_PULSEWIDTH = S(6);
     D.AO.STIM_EVENT_ON = strrep(strcat({'STIM_ON_'},num2str(D.AO.STIM_FREQ'),{'Hz_'},D.AO.STIM_CHANNEL',{'_'},num2str(D.AO.STIM_AMP'),{'uA'}),' ','');
     D.AO.STIM_EVENT_OFF = strrep(strcat({'STIM_OFF_'},num2str(D.AO.STIM_FREQ'),{'Hz_'},D.AO.STIM_CHANNEL',{'_'},num2str(D.AO.STIM_AMP'),{'uA'}),' ','');
-    
 end
 
-iecog = ci('ECOG',D.chanlabels);
-if ~isempty(iecog)
-    D=wjn_ecog_rereference(D.fullfile);
-end
 
-% istnl = ci({'STNL8','STNL1'},D.chanlabels)
-% addchan = {};
-% idata = [];
-% if length(istnl) == 2
-%     idata(end+1,:) = D(istnl(2),:)-D(istnl(1),:);
-%     addchan = {'STNL18'};
-% end
-% 
-% istnr = ci({'STNR8','STNR1'},D.chanlabels)
-% if length(istnr) == 2
-%     idata(end+1,:) = D(istnr(2),:)-D(istnr(1),:);
-%     addchan = [addchan {'STNR18'}];
-% end
-% if ~isempty(addchan)
-%     D=wjn_add_channels(D.fullfile,idata,addchan)
-% end
-
-D=chantype(D,':',wjn_chantype(D.chanlabels));
+D=chantype(D,':',chantypes);
 save(D);
 
-
+data = D.ftraw;
+data.stimulation =  D.AO;
+save(fullfile(fdir,['fieldtrip_' fname ext]),'data');
