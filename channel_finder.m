@@ -7,6 +7,9 @@ end
 if ischar(channels)
     channels = {channels};
 end
+if ischar(possible_list)
+    possible_list = {possible_list};
+end
 x=[];
 
 

@@ -1,15 +1,15 @@
-function wjn_nn_3D_plotter(ni,nh,no,cc)
+function wjn_nn_3D_plotter(cc)
 %%
 clear 
 close all
 ni = 6;
-nh =[10 8 6];
-no = 5;
+nh =[14 10 8];
+no = 7;
 %  inputs = {'\theta','\beta','\gamma' '\theta','\beta','\gamma' '\theta','\beta','\gamma' };
-inputs={'theta','alpha','low beta','high beta','low gamma','high gamma'};
+inputs={'LFP','ECOG','Accelerometry','Daytime','Stimulation History','Medication'};
 
 %  inputs = [strcat('premotor ',inputs) strcat('motor  ',inputs) strcat('sensory  ',inputs)];
-outputs = {'Rigidity','Bradykinesia','Tremor','Freezing','Gait'};
+outputs = {'Eating','Writing','Speech','Gait','Sleep','Sports','Phone'};
 % inputs=outputs;
 % outputs={'Direction','Amplitude','Pulse Width','Frequency'}
  nah = [ni nh no];
