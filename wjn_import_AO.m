@@ -23,7 +23,7 @@ if ~exist('channels','var')
     channels(rm)=[];
     %% get chanlabels from original names with a lookup table based on our conventions
 
-    [chanlabels,chantypes] = wjn_chan_converter(channels);
+    [chanlabels,chantypes] = wjn_channel_converter(channels);
     
    
 else
