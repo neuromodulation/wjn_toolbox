@@ -1,15 +1,15 @@
 function [chanlabels,chantypes] = wjn_channel_converter(channel_list,standard,allow_ambiguity)
 % function [chanlabels,chantypes] = wjn_channel_converter(channel_list,standard,allow_ambiguity)
-% Input: 
+% Input:
 % standard = 'BIDS' for storing (default) or 'CHARITE' for Charité acquisition standard (max. 9 characters)
 % allow_ambiguity = Allow ambiguous/uncertain assumptions based on
 % predefined likelihoods. (default allow_ambiguity = 0)
 %
 % This function is designed to standardize channel names for invasive
 % neurophysiology based on a set of channel names as input.
-% e.g. channel_list = {'GPiR1','GPi_R2','GPi_LFPR3','LFP_R_GPi4'} gets
+% e.g. channel_list = {'GPiR1','GPi_R2','GPi_LFPR3','LFP_R_GPi23'} gets
 % plugged into chanlabels = wjn_channel_converter(channel_list,'BIDS')
-% results in chanlabels =  {'LFP_1_R_GPi_MT'}    {'LFP_2_R_GPi_MT'}    {'LFP_3_L_GPi_MT'}    {'LFP_4_R_GPi_MT'}
+% results in chanlabels =  {'LFP_1_R_GPi_MT'}    {'LFP_2_R_GPi_MT'}    {'LFP_3_L_GPi_MT'}    {'LFP_23_R_GPi_MT'}
 % The channel naming convention used for ICN BIDS datasets is
 % [Channeltype _ Number _ Side _ Location _ Manufacturer]
 
@@ -85,7 +85,7 @@ inputtypes = {{'SEEG','LFP','DBS'},{'ECOG','CTX','ECO','ECX'},{'EEG'},{'EMG'},{'
 % 1) identify the channel as an LFP channel and
 % 2) describe its recording location as GPi
 
-locations = {{'GPI','STN','VIM'},...
+locations = {{'GPi','STN','VIM'},...
     {'SM','IFG','STG'},...
     {'Cz','Fz','C3','C4'},...
     {'BR_','BB_','TB_','FDI','GCN'},...
@@ -151,6 +151,7 @@ for a = 1:length(channel_list)
     for b = 1:length(inputtypes)
         % initialize itypes helper var with zeros
         itypes(a,:) = zeros(1,length(outtypes));
+       
         %% 1) Identify the inputtype
         % Check (similar to regexp) for any occurence of any string defined
         % in either inputtypes or locations as defined for the
@@ -162,7 +163,8 @@ for a = 1:length(channel_list)
         if ~isempty(i)
             % This locks the channel type (b) into the itypes helper variable.
             itypes(a,b) = i;
-            %% Identify the recording / channel location
+            
+            %% 2) Identify the recording / channel location
             % Now another loop runs through the locations and checks again,
             % whether there is a location to be read in from the channel name.
             for c=1:length(locations{b})
@@ -183,7 +185,8 @@ for a = 1:length(channel_list)
             if length(location) == 2
                 location = [location '_'];
             end
-            %% Identify the recording side
+            
+            %% 3) Identify the recording side
             % Next the following section tries to identify the side of the
             % recording.
             % Often recording side is following the channel location
@@ -213,7 +216,7 @@ for a = 1:length(channel_list)
             N = regexp(channel_list{a},'\d*','Match');
             if ~isempty(ci(inputtypes{b},'EEG')) && ~isempty(ci({'Cz','Fz','FCz','Pz'},channel_list(a)))
                 iside = 3;
-            elseif ~isempty(N) && ~isempty(ci(inputtypes{b},'EEG'))           
+            elseif ~isempty(N) && ~isempty(ci(inputtypes{b},'EEG'))
                 iside = 1+~iseven(str2double(N{end}));
             end
             % Now plugin the side as index to the sides description defined above ( sides = {'R','L','C'} )
@@ -222,7 +225,8 @@ for a = 1:length(channel_list)
             else
                 side = 'U'; % if after all it could not be inferred, side is U(nknown)
             end
-            %% Find channel number.
+            
+            %% 4) Find channel number.
             % Search the channel name for digits.
             % Usually the channel number is the last number in channel names.
             % That is because in a hierarchy of hardware setup parts, the
@@ -240,7 +244,7 @@ for a = 1:length(channel_list)
                 % If no number is to be found in the string, we plugin a 0 as a
                 % placeholder for manual adaptation.
                 n=0;
-            elseif allow_ambiguity && length(N{end})>1 && N{end}(1) == 0
+            elseif allow_ambiguity && length(N{end})>1 && strcmp(N{end}(1),'0')
                 % !ambiguuos/uncertain choice:
                 % Another thing to keep in mind is that two adjacent numbers can
                 % depict either the channel number or a derivation of two bipolar
@@ -259,7 +263,8 @@ for a = 1:length(channel_list)
                 n = num2str(str2double(N{end}));
             end
             
-            %% Try to identify the manufacturer
+            
+            %% 5) Try to identify the electrode manufacturer
             % This is almost always impossible except for specific cases at Charité.
             % Therefore, we initialize with U(known).
             manufacturer = 'U';
@@ -283,7 +288,7 @@ for a = 1:length(channel_list)
                 % electrodes.
                 manufacturer = manufacturers{1}{1};
             elseif allow_ambiguity && ~isempty(ci(inputtypes{b},'ECOG')) && length(ci([inputtypes{b} locations{b}],channel_list)) < 9
-                % !ambiguuos/uncertain choice: 
+                % !ambiguuos/uncertain choice:
                 % Currently in Europe almost anyone is using AdTech ECoG strips. So
                 % generally there is high likelihood that AdTech is the correct
                 % manufacturer. However, when working with higher channel count
@@ -292,7 +297,7 @@ for a = 1:length(channel_list)
                 % ambiguous.
                 manufacturer =  manufacturers{2}{1};
             elseif allow_ambiguity && ~isempty(ci(inputtypes{b},'ECOG')) && length(ci([inputtypes{b} locations{b}],channel_list)) > 8
-                % !ambiguuos/uncertain choice: 
+                % !ambiguuos/uncertain choice:
                 % Consequently from above high channel count electrodes are
                 % likely PMT in our setting at Charité.
                 manufacturer =  manufacturers{2}{2};
@@ -306,7 +311,7 @@ for a = 1:length(channel_list)
                 case 'CHARITE'
                     chanlabels{a} = [outtypes{b} side n location manufacturer];
             end
-            % 
+            %
             chantypes{a} = spmtypes{b};
             break
         end
