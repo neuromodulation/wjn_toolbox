@@ -1,9 +1,9 @@
-function [chanlabels,chantypes] = wjn_channel_converter(channel_list,standard,allow_ambiguity)
-% function [chanlabels,chantypes] = wjn_channel_converter(channel_list,standard,allow_ambiguity)
+function [chanlabels,chantypes] = wjn_channel_converter(channel_list,standard,amb)
+% function [chanlabels,chantypes] = wjn_channel_converter(channel_list,standard,amb)
 % Input: 
 % standard = 'BIDS' for storing (default) or 'CHARITE' for Charité acquisition standard (max. 9 characters)
-% allow_ambiguity = Allow ambiguous/uncertain assumptions based on
-% predefined likelihoods. (default allow_ambiguity = 0)
+% amb = Allow ambiguous/uncertain assumptions based on predefined
+% likelihood. (default amb = 0)
 %
 % This function is designed to standardize channel names for invasive
 % neurophysiology based on a set of channel names as input.
@@ -14,12 +14,10 @@ function [chanlabels,chantypes] = wjn_channel_converter(channel_list,standard,al
 % [Channeltype _ Number _ Side _ Location _ Manufacturer]
 
 % set default output standard to BIDS:
-if ~exist('standard','var') || isempty(standard)
+if ~exist('standard','var')
     standard = 'BIDS';
 end
-if ~exist('allow_ambiguity','var')
-    allow_ambiguity = 0;
-end
+if ~exist('amb','var'
 
 %% CHECK for the output standard and assign abbreviations to channel types.
 % The BIDS standard is based on the convention built in the Interventional and Cognitive Neuromodulation
@@ -143,11 +141,11 @@ itypes=[];
 %% Loop through all channels (a)
 for a = 1:length(channel_list)
     % Loop through inputtypes (b)
-    % defined above, note that this
+    % defined in line 72, note that this
     % prioritizes the identification in the order defined in inputtypes.
     % That means an ambiguous channel name such as ECOG_LFP_GPiR2 will be
     % identified as LFP and not ECOG channel, because LFP is the first entry in the
-    % inputtypes variable above.
+    % inputtypes variable in line 72.
     for b = 1:length(inputtypes)
         % initialize itypes helper var with zeros
         itypes(a,:) = zeros(1,length(outtypes));
@@ -215,7 +213,8 @@ for a = 1:length(channel_list)
             elseif ~isempty(N) && ~isempty(ci(inputtypes{b},'EEG'))
                 iside = 1+~iseven(str2double(N{end}));
             end
-            % Now plugin the side as index to the sides description defined above ( sides = {'R','L','C'} )
+            % Now plugin the side as index to the sides description defined in
+            % line 129 ( sides = {'R','L','C'} )
             if ~isempty(iside)
                 side = sides{iside}; % iside = 1 = R ; iside = 2 = L; iside = 3 = C;
             else
@@ -239,8 +238,7 @@ for a = 1:length(channel_list)
                 % If no number is to be found in the string, we plugin a 0 as a
                 % placeholder for manual adaptation.
                 n=0;
-            elseif allow_ambiguity && length(N{end})>1 && N{end}(1) == 0
-                % !ambiguuos/uncertain choice:
+            elseif length(N{end})>1 && N{end}(1) == 0
                 % Another thing to keep in mind is that two adjacent numbers can
                 % depict either the channel number or a derivation of two bipolar
                 % channels. E.g. EMG_Ch23 which could be an EMG channel number 23
@@ -263,8 +261,7 @@ for a = 1:length(channel_list)
             % Therefore, we initialize with U(known).
             manufacturer = 'U';
             
-            if allow_ambiguity && ~isempty(ci(inputtypes{b},'LFP')) && length(ci([inputtypes{b} locations{b}],channel_list)) < 9
-                % !ambiguuos/uncertain choice:
+            if ~isempty(ci(inputtypes{b},'LFP')) && length(ci([inputtypes{b} locations{b}],channel_list)) < 9
                 % Boston Scientific and Abbott do not produce electrodes with less
                 % than 8 contacts. Medtronic only produces electrodes with 4 contacts.
                 % Most of the times we record LFP from both
@@ -275,14 +272,7 @@ for a = 1:length(channel_list)
                 % Scientific or Abbott electrode not fully connected or only
                 % recorded in one hemisphere.
                 manufacturer = manufacturers{1}{2}; % Note that this definition is dependent on the standard (BIDS vs CHARITE)
-            elseif allow_ambiguity && ~isempty(ci(inputtypes{b},'LFP'))
-                % !ambiguuos/uncertain choice:
-                % Most LFP recordings that do not fall in the category
-                % above in our center are recorded with Boston Scientific
-                % electrodes.
-                manufacturer = manufacturers{1}{1};
-            elseif allow_ambiguity && ~isempty(ci(inputtypes{b},'ECOG')) && length(ci([inputtypes{b} locations{b}],channel_list)) < 9
-                % !ambiguuos/uncertain choice: 
+            elseif ~isempty(ci(inputtypes{b},'ECOG')) && length(ci([inputtypes{b} locations{b}],channel_list)) < 9
                 % Currently in Europe almost anyone is using AdTech ECoG strips. So
                 % generally there is high likelihood that AdTech is the correct
                 % manufacturer. However, when working with higher channel count
@@ -290,11 +280,6 @@ for a = 1:length(channel_list)
                 % collaborators and the manufacturer is often PMT. This is
                 % ambiguous.
                 manufacturer =  manufacturers{2}{1};
-            elseif allow_ambiguity && ~isempty(ci(inputtypes{b},'ECOG')) && length(ci([inputtypes{b} locations{b}],channel_list)) > 8
-                % !ambiguuos/uncertain choice: 
-                % Consequently from above high channel count electrodes are
-                % likely PMT in our setting at Charité.
-                manufacturer =  manufacturers{2}{2};
             end
             
             %% Finally the channel string is created based on all the inferred information
