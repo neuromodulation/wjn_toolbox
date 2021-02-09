@@ -9,7 +9,7 @@ function [chanlabels,chantypes] = wjn_channel_converter(channel_list,standard,al
 % neurophysiology based on a set of channel names as input.
 % e.g. channel_list = {'GPiR1','GPi_R2','GPi_LFPR3','LFP_R_GPi4'} gets
 % plugged into chanlabels = wjn_channel_converter(channel_list,'BIDS')
-% results in chanlabels =  {'LFP_1_R_GPI_MT'}    {'LFP_2_R_GPI_MT'}    {'LFP_3_L_GPI_MT'}    {'LFP_4_R_GPI_MT'}
+% results in chanlabels =  {'LFP_1_R_GPi_MT'}    {'LFP_2_R_GPi_MT'}    {'LFP_3_L_GPi_MT'}    {'LFP_4_R_GPi_MT'}
 % The channel naming convention used for ICN BIDS datasets is
 % [Channeltype _ Number _ Side _ Location _ Manufacturer]
 
@@ -209,10 +209,11 @@ for a = 1:length(channel_list)
             end
             
             % A special case can be made for the EEG 10-20 system, where sides
-            % can be inferred from the location name:
+            % can be inferred from the location digit (e.g. C3 = left, Cz = central, C4 = right):
+            N = regexp(channel_list{a},'\d*','Match');
             if ~isempty(ci(inputtypes{b},'EEG')) && ~isempty(ci({'Cz','Fz','FCz','Pz'},channel_list(a)))
                 iside = 3;
-            elseif ~isempty(N) && ~isempty(ci(inputtypes{b},'EEG'))
+            elseif ~isempty(N) && ~isempty(ci(inputtypes{b},'EEG'))           
                 iside = 1+~iseven(str2double(N{end}));
             end
             % Now plugin the side as index to the sides description defined above ( sides = {'R','L','C'} )
