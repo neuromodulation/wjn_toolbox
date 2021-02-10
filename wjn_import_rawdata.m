@@ -17,6 +17,16 @@ if exist('additional_info','var')
 end
 
 if strcmp(format,'fieldtrip')
+    
+    data.hdr.Fs = fs;
+    data.hdr.nChans =length(chanlabels);
+    data.hdr.nSamples = length(data.trial{1});
+    data.hdr.nSamplesPre = 0;
+    data.hdr.nTrials = 1;
+    data.hdr.label = chanlabels;
+    data.hdr.chantype = wjn_chantype(chanlabels,'fieldtrip');
+    data.hdr.chanunit = repmat({'unknown'},[1 data.hdr.nChans]);
+    
     save(filename,'data')
     D=data;
 elseif strcmp(format,'spm')

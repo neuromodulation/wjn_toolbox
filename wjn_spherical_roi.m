@@ -4,7 +4,7 @@ if ~exist('template','var')
     
     Vol=ea_load_nii(fullfile(spm('dir'),'canonical','single_subj_T1.nii'));
     nii=Vol.img;
-    nii(:)=nan;
+    nii(:)=0;
     voxmm = Vol.voxsize;
     for a=1:size(mni,1)
         X= mni(a,1); Y = mni(a,2); Z = mni(a,3);
@@ -36,7 +36,7 @@ if ~exist('template','var')
 else
     Vol=ea_load_nii(template);
     nii=Vol.img;
-    nii(:)=nan;
+    nii(:)=0;
     voxmm = Vol.voxsize;
     for a=1:size(mni,1)
         X= mni(a,1); Y = mni(a,2); Z = mni(a,3);
