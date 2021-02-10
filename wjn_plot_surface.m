@@ -60,7 +60,7 @@ if ~isnumeric(color) || numel(color)==3
 elseif size(color,2)==4 || length(color)==size(s.vertices,1)
     if length(color)~=length(s.vertices)
      s.vertices=double(s.vertices)   ;
-     F = scatteredInterpolant(color(:,2),color(:,3),color(:,4),color(:,1),'linear','none')% ,
+     F = scatteredInterpolant(color(:,2),color(:,3),color(:,4),color(:,1),'linear','linear');% ,
      v=F(s.vertices(:,1),s.vertices(:,2),s.vertices(:,3));
     else
         v=color(:,1);
