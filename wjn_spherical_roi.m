@@ -89,7 +89,7 @@ end
 %
 % cname=wjn_convert2mni_voxel_space(fullfile(fdir,['s' fname '.nii']));
 % spm_imcalc(cname,cname,'i1>0.0001')
-cname=fullfile(fdir,[fname '.nii'])
+cname=fullfile(fdir,[fname '.nii']);
 % ea_crop_nii(cname)
 %
 % delete(fullfile(fdir,['s' fname '.nii']))
