@@ -8,5 +8,5 @@ f(end)=[];
 
 
        
-spm_imcalc(files,fname,f)
+spm_imcalc(files,fname,f);
 nii =fname;
