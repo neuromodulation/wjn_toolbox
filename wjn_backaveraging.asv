@@ -33,6 +33,8 @@ cfg.dataset = ps.raw_data;
 cfg.channel = 'all';
 keyboard
 data = ft_preprocessing(cfg);
+cfg.layout = 'easycapM25.mat';
+
 
 
     function trl=jerk_trials(ps)
