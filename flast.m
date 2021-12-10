@@ -1,6 +1,6 @@
 
 
-root = fullfile(dbf,'Kamera-Uploads');
+% root = fullfile(dbf,'Kamera-Uploads');
 va  =1; % ask for rating?
 visible = 'on';
 mp = [500 2000]; % max pixel of the square
@@ -8,7 +8,7 @@ mn = [2 15]; % max number of images
 mg = 5000; % number of generated images
 npc = [10 90]; % max percentile of color mix
 outsize = [1000 1000];
-cd(root);
+% cd(root);
 files = ffind('*.jpg');
 
 for nx = 1:mg

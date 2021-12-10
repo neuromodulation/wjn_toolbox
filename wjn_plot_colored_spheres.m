@@ -11,7 +11,7 @@ end
 
 
 
-[x,y,z]=sphere;
+[x,y,z]=sphere(50);
 
 if ~exist('cmap','var')
     cmap = colormap;

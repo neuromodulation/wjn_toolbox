@@ -7,6 +7,9 @@ p(2).id = 'SN';
 p(2).raw_data = 'SN.m00';
 p(2).move_channel = 'X5';
 
+p(3).id = 'WK';
+p(3).raw_data = 'A191008114007.EDF';
+p(3).move_channel = 'EOG EOG1';
 
 
 % WRITE OUT EXCEL FROM MOVEDATA
@@ -16,7 +19,7 @@ p(2).move_channel = 'X5';
 % end
 
 %EPOCH JERKS
-epoch_jerks(ps)
+epoch_jerks(p(3))
 
 
 
