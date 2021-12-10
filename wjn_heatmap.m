@@ -29,8 +29,9 @@ bb(1,:)=[round(min(XYZ(:,1)))-round(increase_size/2),round(max(XYZ(:,1)))+round(
 bb(2,:)=[round(min(XYZ(:,2)))-round(increase_size*2),round(max(XYZ(:,2)))+round(increase_size*2)];
 bb(3,:)=[round(min(XYZ(:,3)))-increase_size,round(max(XYZ(:,3)))+increase_size];
 
-F = scatteredInterpolant(XYZ(:,1),XYZ(:,2),XYZ(:,3),double(V{side}),'natural');
-F.ExtrapolationMethod='none';
+InterpolationMethod = 'linear'; % linear is default, but nearest or natural neighbour maybe better non-linear alternatives
+ExtrapolationMethod = 'none'; % only turn on if you know why
+F = scatteredInterpolant(XYZ(:,1),XYZ(:,2),XYZ(:,3),double(V{side}),InterpolationMethod,ExtrapolationMethod);
 xix{side}=bb(1,1):bb(1,2); yix{side}=bb(2,1):bb(2,2); zix{side}=bb(3,1):bb(3,2);
 nii{side}(xix{side},yix{side},zix{side})=F({xix{side},yix{side},zix{side}});
 

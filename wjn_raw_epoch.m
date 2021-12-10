@@ -1,16 +1,10 @@
-function epochs = wjn_raw_epoch(data,trl)
-
-if ~size(trl,2)==3
-    keyboard
-end
-
-
+function epochs = wjn_raw_epoch(data,i,w)
 
 n=0;
-for a = 1:size(trl,1)    
-    if trl(a,1)>0 && trl(a,end)<length(data)
+for a = 1:length(i) 
+    if i(a)>-w(1) && i(a)<length(data)-w(2)
         n=n+1;
-        epochs(n,:) = data(:,trl(a,:));
+        epochs(n,:) = data(:,i(a)+w(1):i(a)+w(2));
     end
 end
     

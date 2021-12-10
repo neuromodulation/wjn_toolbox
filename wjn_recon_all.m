@@ -59,7 +59,10 @@ end
 %% CONNECTIVITY COMPUTATION
 try
     [D,D.COH]=wjn_recon_connectivity(D);
-    wjn_recon_print_connectivity(D)
+    try
+        wjn_recon_print_connectivity(D)
+    catch
+    end
 catch
     disp('wjn_recon_connectivity caused an error.')
 end
