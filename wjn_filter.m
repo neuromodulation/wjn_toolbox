@@ -1,4 +1,4 @@
-function  D = wjn_filter(filename,freq,band,prefix,channels)
+function  D = wjn_filter(filename,freq,band,channels,prefix)
 
 if ~exist('prefix','var')
     prefix = 'f';
