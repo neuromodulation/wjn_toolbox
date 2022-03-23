@@ -79,6 +79,9 @@ elseif size(color,2)==4 || length(color)==size(s.vertices,1)
 %         surf(s.vertices(pks(a),1).*x,s.vertices(pks(a),2).*y,s.vertices(pks(a),3).*z,'EdgeColor','none','FaceColor','r');
 %     end
 %     end
+elseif size(color,2) == 3 && size(color,1) == size(s.vertices,1)
+    v = color;
+    p=patch('vertices',s.vertices,'faces',s.faces,'FaceVertexCData',v,'EdgeColor','none');
      
 else
     p=patch('vertices',s.vertices,'faces',s.faces,'FaceColor',[.5 .5 .5],'EdgeColor','none');

@@ -1,4 +1,4 @@
-function  D = wjn_filter(filename,freq,band,prefix,channels)
+function  D = wjn_filter(filename,freq,band,prefix,channel)
 
 if ~exist('prefix','var')
     prefix = 'f';
@@ -6,19 +6,9 @@ end
 
 D=spm_eeg_load(filename);
 
-if exist('channels','var') 
-    if isnumeric(channels)
-        ic = channels;
-    elseif ischar(channels) || iscell(channels)
-        ic = ci(channels,D.chanlabels);
-    end
-        
-    original_chantype = D.chantype;
-    D = chantype(D,':','Other');
-    D= chantype(D,ic,'EEG');
-    save(D);
-    oD=D;
-end
+if ~iisnumeric(channel)
+    
+
 
 if numel(freq)==1
     if ~exist('band','var')
@@ -42,5 +32,4 @@ elseif numel(freq)==2
     S.prefix = prefix;
     D=spm_eeg_filter(S);
 end
-oD=chantype(oD,':',original_chantype)
-save(oD)
+    

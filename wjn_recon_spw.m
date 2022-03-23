@@ -232,7 +232,7 @@ for a = 1:length(uconds)
     ic=ci(uconds{a},conds,1);
     it=trl(ic);
     
-    
+    it(find((it(1)+seg)<=0))=[];
     for b = 1:length(seg)
         
         spwavg(:,b,a)=nanmean(d(:,it+seg(b)),2);
