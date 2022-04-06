@@ -24,3 +24,5 @@ for a = 1:length(input_images)
     fnames{a} = [input_images{a}(1:end-4) '_' parcellation_image(1:end-4) '.csv'];
     writetable(T,[input_images{a}(1:end-4) '_' parcellation_image(1:end-4) '.csv']);
 end
+
+delete('temp.nii')
