@@ -1,4 +1,5 @@
 function  D = wjn_filter(filename,freq,band,channels,prefix)
+%% D= wjn_filter('spmeeg_test.mat',[13 35],'bandpass','LFP_STN_R12')
 
 if ~exist('prefix','var')
     prefix = 'f';
@@ -42,5 +43,7 @@ elseif numel(freq)==2
     S.prefix = prefix;
     D=spm_eeg_filter(S);
 end
-oD=chantype(oD,':',original_chantype)
-save(oD)
+if exist('oD','var')
+    oD=chantype(oD,':',original_chantype)
+    save(oD)
+end
