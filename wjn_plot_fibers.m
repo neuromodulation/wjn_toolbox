@@ -1,8 +1,16 @@
-function h=wjn_plot_fibers(fc,c)
+function h=wjn_plot_fibers(fc,c,m)
 
 if ~exist('c','var')
     c=colorlover(19);
 end
+
+if ~exist('m','var') || ~m
+    m = 1;
+elseif m
+    m = -1;
+
+end
+
 
 if ischar(fc)
     fname = fc;
@@ -29,14 +37,16 @@ elseif size(c,1)==1
     c = repmat(c,[length(fc),1]);  
 end
 
-
+colormap('viridis');
 for a = 1:length(fc)
-    h(a)=plot3(fc{a}(:,1),fc{a}(:,2),fc{a}(:,3),'linewidth',.05);
+    h(a)=plot3(m.*fc{a}(:,1),fc{a}(:,2),fc{a}(:,3),'linewidth',.05);
+    drawnow
+    camorbit(-1,0)
     hold on
     if exist('c','var')
         set(h(a),'color',c(a,:));
         h(a).Color(4)=.2;
-
+        
         
     end
 end

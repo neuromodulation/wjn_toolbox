@@ -11,7 +11,11 @@ end
 
 
 
-[x,y,z]=sphere(250);
+% <<<<<<< HEAD
+% [x,y,z]=sphere(250);
+% =======
+[x,y,z]=sphere(50);
+% >>>>>>> 7ccc9963e82825b41eeb2ce4c6f18414dfda2724
 
 if ~exist('cmap','var')
     cmap = colormap;

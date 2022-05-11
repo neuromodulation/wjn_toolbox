@@ -2,6 +2,7 @@ function D=wjn_import_rawdata(filename,idata,chanlabels,fs,format,additional_inf
 % function D=wjn_import_rawdata(filename,idata,chanlabels,fs,format,additional_info)
 % format is optional, defaults to spm, but can also be fieldtrip
 
+
 if ~exist('format','var')
     format = 'spm';
 end

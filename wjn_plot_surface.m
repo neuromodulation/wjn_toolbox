@@ -60,11 +60,17 @@ if ~isnumeric(color) || numel(color)==3
 elseif size(color,2)==4 || length(color)==size(s.vertices,1)
     if length(color)~=length(s.vertices)
      s.vertices=double(s.vertices)   ;
-
-     F = scatteredInterpolant(color(:,2),color(:,3),color(:,4),color(:,1),'linear','linear');%'method','natural'
-
-%      F = scatteredInterpolant(color(:,2),color(:,3),color(:,4),color(:,1),'linear','linear');% ,
-
+% <<<<<<< HEAD
+% 
+%      F = scatteredInterpolant(color(:,2),color(:,3),color(:,4),color(:,1),'linear','linear');%'method','natural'
+% 
+% %      F = scatteredInterpolant(color(:,2),color(:,3),color(:,4),color(:,1),'linear','linear');% ,
+% 
+% =======
+%      InterpolationMethod = 'linear'; % linear is default, but nearest or natural neighbour maybe better non-linear alternatives
+%     ExtrapolationMethod = 'linear'; % only turn on if you know why
+%      F = scatteredInterpolant(color(:,2),color(:,3),color(:,4),color(:,1),InterpolationMethod,ExtrapolationMethod); 
+% >>>>>>> 7ccc9963e82825b41eeb2ce4c6f18414dfda2724
      v=F(s.vertices(:,1),s.vertices(:,2),s.vertices(:,3));
     else
         v=color(:,1);
@@ -81,6 +87,9 @@ elseif size(color,2)==4 || length(color)==size(s.vertices,1)
 %         surf(s.vertices(pks(a),1).*x,s.vertices(pks(a),2).*y,s.vertices(pks(a),3).*z,'EdgeColor','none','FaceColor','r');
 %     end
 %     end
+elseif size(color,2) == 3 && size(color,1) == size(s.vertices,1)
+    v = color;
+    p=patch('vertices',s.vertices,'faces',s.faces,'FaceVertexCData',v,'EdgeColor','none');
      
 else
     p=patch('vertices',s.vertices,'faces',s.faces,'FaceColor',[.5 .5 .5],'EdgeColor','none');

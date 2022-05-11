@@ -10,5 +10,7 @@ end
 
 vw.Quality = 100;
 open(vw);
-writeVideo(vw,frames);
+for a = 1:length(frames)
+    writeVideo(vw,frames(a));
+end
 close(vw);
