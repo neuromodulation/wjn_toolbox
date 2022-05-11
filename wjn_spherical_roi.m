@@ -2,9 +2,9 @@ function cname=wjn_spherical_roi(fname,mni,r,template)
 
 if ~exist('template','var')
     
-    Vol=ea_load_nii(fullfile(ea_getearoot,'templates','space','MNI_ICBM_2009b_NLIN_ASYM','T1.nii'));
+    Vol=ea_load_nii(fullfile(spm('dir'),'canonical','single_subj_T1.nii'));
     nii=Vol.img;
-    nii(:)=nan;
+    nii(:)=0;
     voxmm = Vol.voxsize;
     for a=1:size(mni,1)
         X= mni(a,1); Y = mni(a,2); Z = mni(a,3);
@@ -36,7 +36,7 @@ if ~exist('template','var')
 else
     Vol=ea_load_nii(template);
     nii=Vol.img;
-    nii(:)=nan;
+    nii(:)=0;
     voxmm = Vol.voxsize;
     for a=1:size(mni,1)
         X= mni(a,1); Y = mni(a,2); Z = mni(a,3);
@@ -60,7 +60,8 @@ else
             nii(xix(2:end),yiy,ziz)=S(2:end,:,:);
         end
     end
-    nii(nii~=1)=nan;
+    nii(isnan(nii))=0;
+    nii(nii<0.01)=0;
     Vol.dt =[16,0];
     [fdir,fname]=fileparts(fname);
     Vol.fname=fullfile(fdir,[fname '.nii']);
@@ -88,7 +89,7 @@ end
 %
 % cname=wjn_convert2mni_voxel_space(fullfile(fdir,['s' fname '.nii']));
 % spm_imcalc(cname,cname,'i1>0.0001')
-cname=fullfile(fdir,[fname '.nii'])
+cname=fullfile(fdir,[fname '.nii']);
 % ea_crop_nii(cname)
 %
 % delete(fullfile(fdir,['s' fname '.nii']))

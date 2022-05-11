@@ -16,19 +16,20 @@ iev = round(0.25*D.fsample);
 for a = 1:D.nchannels
     tic
     data=D(a,:);
-%     data(data==0)=nan;
-%     good = ~isnan(data);
-    
+
+    good = data~=0;
+    data(isnan(data))=0;
+
     if exist('freqband','var')
-        data = smooth(abs(hilbert(ft_preproc_bandpassfilter(data,D.fsample,freqband))),round(D.fsample*0.25));
+        data(good) = smooth(abs(hilbert(ft_preproc_bandpassfilter(data(good),D.fsample,freqband))),round(D.fsample*0.25));
     else
-        data = smooth(abs(hilbert(data))',round(D.fsample*0.25));
+        data(good) = smooth(abs(hilbert(data(good)))',round(D.fsample*0.25));
     end
-    data([1:D.fsample end-D.fsample+1:end])=0;
+    data(round([1:D.fsample end-D.fsample+1:end]))=0;
     data = wjn_zscore(data);
     
     alldata(a,:)=data;
-    d = mydiff(squeeze(data)>=prctile(data,75));d([1:D.fsample end-D.fsample+1:end])=0;
+    d = mydiff(squeeze(data)>=prctile(data,75));d(round([1:D.fsample end-D.fsample+1:end]))=0;
     
     i = find(d==1);
     s = find(d==-1);

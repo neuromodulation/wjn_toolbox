@@ -49,15 +49,19 @@ if exist('trl','var') && ~isempty(trl)
     D.conditionlabels = S.conditionlabels;
     save(D)
     
-    % keyboard
+
     
     
     if isfield(D,'analog') && ~isempty(fieldnames(D.analog))
         anames = fieldnames(D.analog);
         for a = 1:length(anames)
             for b = 1:size(D.trl,1)
-                D.eanalog.(anames{a})(b,:)= D.analog.(anames{a})(round(D.trl(b,1)):round(D.trl(b,2)));
+                disp(b)
+                tmp = D.analog.(anames{a})(round(D.trl(b,1)):round(D.trl(b,2)));
+                tmp2(a,b,:)=tmp;
+                        
             end
+            D.eanalog.(anames{a}) = squeeze(tmp2(a,:,:));
         end
         save(D)
     end

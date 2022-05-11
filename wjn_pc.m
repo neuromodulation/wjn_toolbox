@@ -2,7 +2,7 @@ function [rho,prho,r,pr]=wjn_pc(x,y,ni)
 %% [r,p]=wjn_permcorr(x,y,ni)
 
 if ~exist('ni','var')
-    ni = 10000;
+    ni = 100000;
 end
 
 if ~exist('y','var') || isempty(y)

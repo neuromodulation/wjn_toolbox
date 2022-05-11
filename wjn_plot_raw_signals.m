@@ -1,5 +1,8 @@
 function p=wjn_plot_raw_signals(time,data,chanlabels)
 
+if size(data,1) > 400 && size(data,1) > size(data,2)
+    data = data';
+end
 if size(time)==  [1,1]
     time = linspace(0,length(data)/time,length(data));
 end
@@ -17,3 +20,4 @@ end
 set(gca,'YTick',[1:size(data,1)],'YTickLabel',strrep(chanlabels,'_',' '),'YTickLabelRotation',45);
 xlim([time(1) time(end)]);
 ylim([0 length(chanlabels)+1]);
+xlabel('Time [s]')
