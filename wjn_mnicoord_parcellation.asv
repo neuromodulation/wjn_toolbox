@@ -40,10 +40,10 @@ for a = 1:length(unique_indices)
 end
 
 writetable(T,[filename '_' parcellation_image(1:end-4) '.csv']);
-disp('
-%%
-nii_out = nii_p;
-nii_out.img(:) = 0;
+disp('Table written, now write niftis...')
+keyboard
+%% Write nifti files for all parcellated values.
+keyboard
 
 for a = 3:size(T,2)
 
@@ -56,3 +56,4 @@ for a = 3:size(T,2)
     nii_out.fname = [T.Properties.VariableNames{a} '_' filename '_' parcellation_image(1:end-4) '.nii'];
     ea_write_nii(nii_out);
 end
+disp('Parcellation and nifti creation done.')

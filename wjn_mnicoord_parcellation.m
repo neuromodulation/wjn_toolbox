@@ -41,9 +41,8 @@ end
 
 writetable(T,[filename '_' parcellation_image(1:end-4) '.csv']);
 disp('Table written, now write niftis...')
+
 %% Write nifti files for all parcellated values.
-nii_out = nii_p;
-nii_out.img(:) = 0;
 
 for a = 3:size(T,2)
 
@@ -51,9 +50,11 @@ for a = 3:size(T,2)
         nii_out.img(:) = 0;
 
     for b = 1:size(T,1)
-        nii_out(nii_out(:)==T.Index(b))=T(:,a);
+        nii_out.img(find(nii_p.img(:)==T.Index(b)))=table2array(T(b,a));
     end
     nii_out.fname = [T.Properties.VariableNames{a} '_' filename '_' parcellation_image(1:end-4) '.nii'];
+%     nii_out.img(isnan(nii_out.img(:)))=0;
+    disp(['Write ' nii_out.fname])
     ea_write_nii(nii_out);
 end
 disp('Parcellation and nifti creation done.')
