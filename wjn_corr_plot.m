@@ -1,7 +1,7 @@
 function [rho,prho,r,p,s,pl]=wjn_corr_plot(d1,d2,c,perm)
 
 if ~exist('perm','var')
-    perm=1;
+    perm=0;
 end
 
 if ~exist('d2','var')

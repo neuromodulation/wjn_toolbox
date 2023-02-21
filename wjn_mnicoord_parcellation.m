@@ -16,7 +16,7 @@ for a = 1:length(T.Index)
     mni_p = wjn_cor2mni([x y z],nii_p.mat);
     for b =1:size(mni_coords,1)
         d=pdist2(mni_coords(b,:),mni_p);
-        if min(d)<5 % Threshold of maximal distance (default 5 mm)
+        if min(d)<1 % Threshold of maximal distance (default 5 mm)
             pa(a,b)=min(d);
         else
             pa(a,b)=nan;

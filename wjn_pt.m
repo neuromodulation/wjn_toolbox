@@ -6,7 +6,7 @@ if ~exist('d2','var') || isempty(d2)
 end
 
 if ~exist('ni','var')
-    ni = 5000;
+    ni = 10000;
 end
 
 d1(isnan(d1))=[];
