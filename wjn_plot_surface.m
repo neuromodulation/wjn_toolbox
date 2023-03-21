@@ -91,7 +91,7 @@ else
     warning('color not working')
 end
 
-
+material dull
 axis equal
 axis off
 set(gcf,'color','k')

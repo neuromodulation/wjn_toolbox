@@ -48,9 +48,9 @@ for i = 1:size(mni,1)
            round(linspace(T(3),X(3),100))]';
        ic=wjn_sc(pdist2(X,Pmatrix),1);
     [X,Y,Z] = cylinder2P(r,50,mni(i,:),Pmatrix(ic,:));
-    h(i,1) = surf(X,Y,Z,'facecolor',cmap(v(i),:),'LineStyle','-','EdgeColor',cmap(v(i),:));
-    h(i,2) = fill3(X(1,:),Y(1,:),Z(1,:),cmap(v(i),:),'EdgeColor',cmap(v(i),:));
-    h(i,3) = fill3(X(2,:),Y(2,:),Z(2,:),cmap(v(i),:),'EdgeColor',cmap(v(i),:));
+    h(i,1) = surf(X,Y,Z,'facecolor','none','LineStyle','-','EdgeColor','none');
+    h(i,2) = fill3(X(1,:),Y(1,:),Z(1,:),cmap(v(i),:),'EdgeColor','none');
+% %     h(i,3) = fill3(X(2,:),Y(2,:),Z(2,:),cmap(v(i),:),'EdgeColor',cmap(v(i),:));
     hold on
 end
 

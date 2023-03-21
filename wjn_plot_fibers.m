@@ -1,4 +1,4 @@
-function h=wjn_plot_fibers(fc,c,m)
+function h=wjn_plot_fibers(fc,c,dec,m)
 
 if ~exist('c','var')
     c=colorlover(19);
@@ -10,6 +10,11 @@ elseif m
     m = -1;
 
 end
+
+if ~exist('dec') || isempty(dec) || ~dec
+    dec = 1;
+end
+
 
 
 if ischar(fc)
@@ -30,6 +35,8 @@ elseif ~iscell(fc)
     end
 end
 
+fc = fc(1:dec:end);
+
 if size(c,1)>1
     nx=linspace(1,size(c,1),length(fc));
     c = [interp1(1:size(c,1),c(:,1),nx'),interp1(1:size(c,1),c(:,2),nx'),interp1(1:size(c,1),c(:,3),nx')];
@@ -39,17 +46,24 @@ end
 
 colormap('viridis');
 for a = 1:length(fc)
-    h(a)=plot3(m.*fc{a}(:,1),fc{a}(:,2),fc{a}(:,3),'linewidth',.05);
-    drawnow
-    camorbit(-1,0)
-    hold on
-    if exist('c','var')
-        set(h(a),'color',c(a,:));
-        h(a).Color(4)=.2;
-        
-        
-    end
-end
+%     h(a)=plot3(m.*fc{a}(:,1),fc{a}(:,2),fc{a}(:,3),'linewidth',.2);
+[x,y,z]=tubeplot([m.*fc{a}(:,1),fc{a}(:,2),fc{a}(:,3)]',0.15,30);
+h(a) = surf(x,y,z,'edgecolor','none','FaceAlpha',0.5);
 
+% h=streamline(fc,fc);
+
+%  h(a)=streamtube(m.*fc{a}(:,1),fc{a}(:,2),fc{a}(:,3));
+%     drawnow
+%     camorbit(-1,0)
+    hold on
+%     if exist('c','var')
+%         set(h(a),'EdgeColor','none','FaceColor',c(a,:));
+%         h(a).Color(4)=.2;
+        
+        
+%     end
+end
+% keyboard
+% alpha 0.1
 axis equal 
 axis off
