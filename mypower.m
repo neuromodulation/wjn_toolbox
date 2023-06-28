@@ -13,7 +13,7 @@ if size(f,2) ~= size(pow,2)
     pow = pow';
 end
 if ~exist('measure','var') || isempty(measure)
-    measure = 'std';
+    measure = 'sem';
 end
 if ~exist('color','var') || isempty(color)
     color = [.05 .05 .05];

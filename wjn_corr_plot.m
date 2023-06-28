@@ -51,7 +51,7 @@ end
 hold on
 [x,y]=mycorrline(d1,d2,min(d1)-1*abs(min(d1)),max(d1)+1*abs(max(d1)));
 pl=plot(x,y,'LineWidth',3,'color',[.6 .6 .6]);
-s=scatter(d1,d2,40,'Marker','.','MarkerFaceColor',c,'MarkerEdgeColor',c);
+s=scatter(d1,d2,350,'Marker','.','MarkerFaceColor',c,'MarkerEdgeColor',c);
 try
 xlim([min(d1)-.15*abs(min(d1)) max(d1)+.15*max(d1)])
 end
