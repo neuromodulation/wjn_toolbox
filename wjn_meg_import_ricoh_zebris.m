@@ -1,25 +1,14 @@
-function D=wjn_meg_import_ricoh_zebris(confile,mrk_file,sfp_file)
+function D=wjn_meg_import_ricoh_zebris(meg_file,mrk_file,sfp_file,mri_file,mri_nas_lpa_rpa)
 
-[fpath,file]=fileparts(confile)
 
 ft_defaults
+%% Start coregistration
+dataset=meg_file;
+hdr = ft_read_header(dataset);
 
-%% MEG data
-% meg_path = 'C:\user\sander\data\trr295_data\';
-% % meg_file = 'ber009_StimOFF_rest_run-01.con';  % associated mrk-file is '221024-6.mrk';
-% % mrk_file = '221024-6.mrk';
-% meg_file = 'ber009_StimON_rest_run-01.con';  % associated mrk-file is '221024-2.mrk';
-% mrk_file = '221024-2.mrk';
-% dataset = fullfile(meg_path, meg_file);
-hdr = ft_read_header(confile);
-
-% cfg = [];
-% cfg.dataset = confile;
-% cfg.channel = 'AG*';
-% cfg.hpfilter = 'yes'; % to remove slow drift
-% cfg.hpfreq = 1;
-% cfg.hpfiltord = 5;
-% data = ft_preprocessing(cfg);
+cfg = [];
+cfg.dataset = meg_file;
+data = ft_preprocessing(cfg);
 
 
 %% Read HPIs in MEG coordinate system from .mrk file
@@ -45,13 +34,14 @@ shape_hc.label(sz(1)-15:sz(1)-13,:)
 % coil order: Coil1 = Na, Coil2 = LPA, Coil3 = RPA, Coil4, Coil5
 coil2common  = ft_headcoordinates(coilset.pos(1,:),coilset.pos(2,:),coilset.pos(3,:)); % headcoordinates wants na, lpa, rpa    
 hs2common = ft_headcoordinates(shape_hc.chanpos(nas_coil,:),shape_hc.chanpos(lpa_coil,:),shape_hc.chanpos(rpa_coil,:)); % na, lpa, rpa (Zebris)
-t = inv(hs2common)*coil2common
+t = inv(hs2common)*coil2common;
 data.grad = ft_convert_units(data.grad, 'mm');
 data_hc.grad = ft_transform_geometry(t,data.grad);
 coilset_hc = ft_transform_geometry(t,coilset);
 
 %% Display all
 % SQUID array
+figure
 ft_plot_sens(data_hc.grad,'edgecolor', 'blue');  % ,'coil',true, 'facecolor', 'red');    
 hold on
 % ZEBRIS fiducials
@@ -70,19 +60,54 @@ hold on
 plot3(shape_hc.chanpos(sz(1)-15:sz(1)-13,1),shape_hc.chanpos(sz(1)-15:sz(1)-13,2),shape_hc.chanpos(sz(1)-15:sz(1)-13,3),'magentad','MarkerSize',15)
 axis equal
 hold on
-% 
-% cfg = [];
-% cfg.method = 'sobi'; % 'fastica'; % 'sobi'; % 'fastica';
-% cfg.sobi.p_correlations = 10; % 400;
-% cfg.sobi.n_sources = 40;
-% cfg.fastica.numOfIC = 30;
-% ica_comp = ft_componentanalysis(cfg, data);
-% 
-% cfg = [];
-% cfg.channel =  [1:10]; % show components in blocks of 10
-% cfg.layout    = 'vertical'; % specify the layout file that should be used for plotting
-% cfg.viewmode = 'vertical';
-% cfg.compscale = 'local';
-% cfg.blocksize = 5; % show 5 second long blocks
-% cfg.ylim = [-5 5]*1e-14; % initial scaling
-% ft_databrowser(cfg, ica_comp);
+myprint('headmodel in fieldtrip')
+
+% Convert to SPM for use with DAiSS
+
+D=spm_eeg_convert(meg_file)
+D=sensors(D,'MEG',data_hc.grad);
+D=fiducials(D,shape_hc);
+D=chantype(D,D.indchantype('EEG'),'Other')
+save(D)
+
+if exist('mri_file','var') && exist('mri_nas_lpa_rpa')
+clear matlabbatch
+matlabbatch{1}.spm.meeg.source.headmodel.D = {fullfile(D)};
+matlabbatch{1}.spm.meeg.source.headmodel.val = 1;
+matlabbatch{1}.spm.meeg.source.headmodel.comment = '';
+matlabbatch{1}.spm.meeg.source.headmodel.meshing.meshes.mri = {mri_file};
+matlabbatch{1}.spm.meeg.source.headmodel.coregistration.coregspecify.fiducial(1).fidname = 'nas';
+matlabbatch{1}.spm.meeg.source.headmodel.coregistration.coregspecify.fiducial(1).specification.type = mri_nas_lpa_rpa(1,:);
+matlabbatch{1}.spm.meeg.source.headmodel.coregistration.coregspecify.fiducial(2).fidname = 'lpa';
+matlabbatch{1}.spm.meeg.source.headmodel.coregistration.coregspecify.fiducial(2).specification.type = mri_nas_lpa_rpa(2,:);
+matlabbatch{1}.spm.meeg.source.headmodel.coregistration.coregspecify.fiducial(3).fidname = 'rpa';
+matlabbatch{1}.spm.meeg.source.headmodel.coregistration.coregspecify.fiducial(3).specification.type = mri_nas_lpa_rpa(3,:);
+matlabbatch{1}.spm.meeg.source.headmodel.meshing.meshres = 2;
+matlabbatch{1}.spm.meeg.source.headmodel.coregistration.coregspecify.useheadshape = 1;
+matlabbatch{1}.spm.meeg.source.headmodel.forward.meg = 'Single Shell';
+spm_jobman('run', matlabbatch);
+disp('SPM Headmodel with individual MRI')
+elseif exist('mri_file','var') && ~exist('mri_nas_lpa_rpa','var')
+    warning('Write out nas/lpa/rpa coordinates and add to input!')
+    spm_check_registration(mri_file)
+    return
+else
+    clear matlabbatch
+    matlabbatch{1}.spm.meeg.source.headmodel.D = {fullfile(D)};
+    matlabbatch{1}.spm.meeg.source.headmodel.val = 1;
+    matlabbatch{1}.spm.meeg.source.headmodel.comment = '';
+    matlabbatch{1}.spm.meeg.source.headmodel.meshing.meshes.template = 1;
+    matlabbatch{1}.spm.meeg.source.headmodel.coregistration.coregspecify.fiducial(1).fidname = 'nas';
+    matlabbatch{1}.spm.meeg.source.headmodel.coregistration.coregspecify.fiducial(1).specification.select = 'nas';
+    matlabbatch{1}.spm.meeg.source.headmodel.coregistration.coregspecify.fiducial(2).fidname = 'lpa';
+    matlabbatch{1}.spm.meeg.source.headmodel.coregistration.coregspecify.fiducial(2).specification.select = 'lpa';
+    matlabbatch{1}.spm.meeg.source.headmodel.coregistration.coregspecify.fiducial(3).fidname = 'rpa';
+    matlabbatch{1}.spm.meeg.source.headmodel.coregistration.coregspecify.fiducial(3).specification.select = 'rpa';
+    matlabbatch{1}.spm.meeg.source.headmodel.meshing.meshres = 2;
+    matlabbatch{1}.spm.meeg.source.headmodel.coregistration.coregspecify.useheadshape = 1;
+    matlabbatch{1}.spm.meeg.source.headmodel.forward.meg = 'Single Shell';
+    spm_jobman('run', matlabbatch);
+        disp('SPM Headmodel with template MRI')
+end
+
+D=reload(D);
