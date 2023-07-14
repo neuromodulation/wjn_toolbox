@@ -1,4 +1,5 @@
-function D = wjn_meg_source_extraction(filename,mni,names,radius)
+function D = wjn_eeg_source_extraction(filename,mni,names,radius)
+
 
 if ~exist('mni','var')
     [mni,names]=wjn_mni_list;
@@ -31,17 +32,16 @@ for a = 1:length(names)
     matlabbatch{2}.spm.tools.beamforming.sources.plugin.voi.vois{a}.voidef.ori = [0 0 0];
 end
 matlabbatch{2}.spm.tools.beamforming.sources.plugin.voi.radius = radius;
-matlabbatch{2}.spm.tools.beamforming.sources.plugin.voi.resolution = 10;
+matlabbatch{2}.spm.tools.beamforming.sources.plugin.voi.resolution = 5;
 matlabbatch{2}.spm.tools.beamforming.sources.visualise = 1;
 matlabbatch{3}.spm.tools.beamforming.features.BF(1) = cfg_dep('Define sources: BF.mat file', substruct('.','val', '{}',{2}, '.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','BF'));
 matlabbatch{3}.spm.tools.beamforming.features.whatconditions.all = 1;
 matlabbatch{3}.spm.tools.beamforming.features.woi = [-Inf Inf];
 matlabbatch{3}.spm.tools.beamforming.features.modality = {'MEG'};
 matlabbatch{3}.spm.tools.beamforming.features.fuse = 'no';
-matlabbatch{3}.spm.tools.beamforming.features.plugin.cov.foi = [0 Inf];
-matlabbatch{3}.spm.tools.beamforming.features.plugin.cov.taper = 'none';
-matlabbatch{3}.spm.tools.beamforming.features.regularisation.manual.lambda = 0.01;
-matlabbatch{3}.spm.tools.beamforming.features.bootstrap = false;
+matlabbatch{3}.spm.tools.beamforming.features.plugin.contcov = struct([]);
+matlabbatch{3}.spm.tools.beamforming.features.regularisation.manual.lambda = 5;
+matlabbatch{3}.spm.tools.beamforming.features.bootstrap = 'yes';
 matlabbatch{4}.spm.tools.beamforming.inverse.BF(1) = cfg_dep('Covariance features: BF.mat file', substruct('.','val', '{}',{3}, '.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','BF'));
 matlabbatch{4}.spm.tools.beamforming.inverse.plugin.lcmv.orient = true;
 matlabbatch{4}.spm.tools.beamforming.inverse.plugin.lcmv.keeplf = false;
@@ -51,12 +51,13 @@ matlabbatch{5}.spm.tools.beamforming.output.plugin.montage.vois = {};
 matlabbatch{6}.spm.tools.beamforming.write.BF(1) = cfg_dep('Output: BF.mat file', substruct('.','val', '{}',{5}, '.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','BF'));
 matlabbatch{6}.spm.tools.beamforming.write.plugin.spmeeg.mode = 'write';
 matlabbatch{6}.spm.tools.beamforming.write.plugin.spmeeg.modality = 'MEG';
-matlabbatch{6}.spm.tools.beamforming.write.plugin.spmeeg.addchannels.channels{1}.type = 'LFP';
 matlabbatch{6}.spm.tools.beamforming.write.plugin.spmeeg.addchannels.none = 0;
 matlabbatch{6}.spm.tools.beamforming.write.plugin.spmeeg.prefix = 'B';
 
 spm_jobman('run',matlabbatch)
 D=spm_eeg_load(fullfile(fdir,['B' fname ext]));
-
+D.sources.mni = mni;
+D.sources.names = names;
+save(D)
 pause(1) 
-% delete(fullfile(fdir,'BF.mat'));
+delete(fullfile(fdir,'BF.mat'));
