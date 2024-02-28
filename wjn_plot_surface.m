@@ -59,13 +59,13 @@ if ~isnumeric(color) || numel(color)==3
     v=[];
 elseif size(color,2)==4 || length(color)==size(s.vertices,1)
     if length(color)~=length(s.vertices)
-     s.vertices=double(s.vertices)   ;
+        s.vertices=double(s.vertices)   ;
 
-     InterpolationMethod = 'linear'; % linear is default, but nearest or natural neighbour maybe better non-linear alternatives
-    ExtrapolationMethod = 'linear'; % only turn on if you know why
-     F = scatteredInterpolant(color(:,2),color(:,3),color(:,4),color(:,1),InterpolationMethod,ExtrapolationMethod); 
-
-     v=F(s.vertices(:,1),s.vertices(:,2),s.vertices(:,3));
+        InterpolationMethod = 'linear'; % linear is default, but nearest or natural neighbour maybe better non-linear alternatives
+        ExtrapolationMethod = 'linear'; % only turn on if you know why
+        F = scatteredInterpolant(color(:,2),color(:,3),color(:,4),color(:,1),InterpolationMethod,ExtrapolationMethod); 
+    
+        v=F(s.vertices(:,1),s.vertices(:,2),s.vertices(:,3));
     else
         v=color(:,1);
     end
